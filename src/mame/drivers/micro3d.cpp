@@ -117,7 +117,7 @@ static INPUT_PORTS_START( botss )
 	PORT_INCLUDE( micro3d )
 
 	PORT_MODIFY("INPUTS_A_B")
-	PORT_BIT( 0x0080, IP_ACTIVE_HIGH, IPT_CUSTOM ) PORT_CUSTOM_MEMBER(DEVICE_SELF, micro3d_state, botss_hwchk_r, nullptr)
+	PORT_BIT( 0x0080, IP_ACTIVE_HIGH, IPT_CUSTOM ) PORT_READ_LINE_MEMBER(micro3d_state, botss_hwchk_r)
 	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START1 )
 	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_BUTTON3 )  PORT_NAME("Shield")
 	PORT_SERVICE( 0x0400, IP_ACTIVE_LOW )
@@ -268,7 +268,7 @@ void micro3d_state::drmath_data(address_map &map)
 	map(0x01400000, 0x01400003).rw(FUNC(micro3d_state::micro3d_pipe_r), FUNC(micro3d_state::micro3d_fifo_w));
 	map(0x01600000, 0x01600003).w(FUNC(micro3d_state::drmath_intr2_ack));
 	map(0x01800000, 0x01800003).w(FUNC(micro3d_state::micro3d_alt_fifo_w));
-	map(0x03fffff0, 0x03ffffff).rw("scc", FUNC(z80scc_device::ba_cd_inv_r), FUNC(z80scc_device::ba_cd_inv_w)).umask32(0x000000ff);
+	map(0x03fffff0, 0x03ffffff).rw("scc", FUNC(z80scc_device::ab_dc_r), FUNC(z80scc_device::ab_dc_w)).umask32(0x000000ff);
 }
 
 /*************************************
@@ -291,6 +291,12 @@ void micro3d_state::soundmem_io(address_map &map)
 	map(0xff01, 0xff01).w(FUNC(micro3d_state::micro3d_snd_dac_b));
 }
 
+void micro3d_state::cpu_space_map(address_map &map)
+{
+	map(0xfffff0, 0xffffff).m(m_maincpu, FUNC(m68000_base_device::autovectors_map));
+	map(0xfffff6, 0xfffff7).lr16(NAME([this] () -> u16 { return m_duart->get_irq_vector(); }));
+}
+
 
 /*************************************
  *
@@ -303,6 +309,7 @@ void micro3d_state::micro3d(machine_config &config)
 	M68000(config, m_maincpu, 32_MHz_XTAL / 2);
 	m_maincpu->set_addrmap(AS_PROGRAM, &micro3d_state::hostmem);
 	m_maincpu->set_vblank_int("screen", FUNC(micro3d_state::micro3d_vblank));
+	m_maincpu->set_addrmap(m68000_base_device::AS_CPU_SPACE, &micro3d_state::cpu_space_map);
 
 	TMS34010(config, m_vgb, 40_MHz_XTAL);
 	m_vgb->set_addrmap(AS_PROGRAM, &micro3d_state::vgbmem);
@@ -339,15 +346,13 @@ void micro3d_state::micro3d(machine_config &config)
 
 	mc68901_device &mfp(MC68901(config, "mfp", 4000000));
 	mfp.set_timer_clock(4000000);
-	mfp.set_rx_clock(0);
-	mfp.set_tx_clock(0);
 	mfp.out_irq_cb().set_inputline("maincpu", M68K_IRQ_4);
-	//mfp.out_tao_cb().set("mfp", FUNC(mc68901_device::rc_w));
-	//mfp.out_tao_cb().append("mfp", FUNC(mc68901_device::tc_w));
+	mfp.out_tao_cb().set("mfp", FUNC(mc68901_device::rc_w));
+	mfp.out_tao_cb().append("mfp", FUNC(mc68901_device::tc_w));
 	mfp.out_tco_cb().set("mfp", FUNC(mc68901_device::tbi_w));
 
 	NVRAM(config, "nvram", nvram_device::DEFAULT_ALL_0);
-	config.m_minimum_quantum = attotime::from_hz(3000);
+	config.set_maximum_quantum(attotime::from_hz(3000));
 
 	PALETTE(config, m_palette).set_format(palette_device::BRGx_555, 4096);
 
@@ -356,7 +361,7 @@ void micro3d_state::micro3d(machine_config &config)
 	screen.set_screen_update("vgb", FUNC(tms34010_device::tms340x0_ind16));
 	screen.set_palette(m_palette);
 
-	MC2661(config, m_vgb_uart, 40_MHz_XTAL / 8); // actually SCN2651
+	SCN2651(config, m_vgb_uart, 40_MHz_XTAL / 8);
 	m_vgb_uart->txd_handler().set("monitor_vgb", FUNC(rs232_port_device::write_txd));
 
 	rs232_port_device &monitor_host(RS232_PORT(config, "monitor_host", default_rs232_devices, nullptr)); // J2 (4-pin molex)
@@ -367,8 +372,8 @@ void micro3d_state::micro3d(machine_config &config)
 	monitor_drmath.dcd_handler().set("scc", FUNC(z80scc_device::dcdb_w));
 
 	rs232_port_device &monitor_vgb(RS232_PORT(config, "monitor_vgb", default_rs232_devices, nullptr)); // J3 (4-pin molex)
-	monitor_vgb.rxd_handler().set(m_vgb_uart, FUNC(mc2661_device::rx_w));
-	monitor_vgb.dsr_handler().set(m_vgb_uart, FUNC(mc2661_device::dsr_w));
+	monitor_vgb.rxd_handler().set(m_vgb_uart, FUNC(scn2651_device::rxd_w));
+	monitor_vgb.dsr_handler().set(m_vgb_uart, FUNC(scn2651_device::dsr_w));
 
 	ADC0844(config, m_adc);
 	m_adc->intr_callback().set("mfp", FUNC(mc68901_device::i3_w));

@@ -86,7 +86,7 @@
 #include "speaker.h"
 
 
-WRITE8_MEMBER(laserbat_state_base::ct_io_w)
+void laserbat_state_base::ct_io_w(uint8_t data)
 {
 	/*
 	    Uses a hex buffer, so bits 6 and 7 are not physically present.
@@ -134,7 +134,7 @@ WRITE8_MEMBER(laserbat_state_base::ct_io_w)
 //  popmessage("ct io: %02X", data);
 }
 
-READ8_MEMBER(laserbat_state_base::rrowx_r)
+uint8_t laserbat_state_base::rrowx_r()
 {
 	return (m_mpx_p_1_2 ? m_row2 : m_mux_ports[m_input_mux])->read();
 }
@@ -213,8 +213,8 @@ static INPUT_PORTS_START( laserbat_base )
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(2)
 	PORT_CONFNAME( 0x10, 0x10, DEF_STR(Cabinet) ) // sense line on wiring harness
-	PORT_DIPSETTING(     0x10, DEF_STR(Upright) )
-	PORT_DIPSETTING(     0x00, DEF_STR(Cocktail) )
+	PORT_CONFSETTING(    0x10, DEF_STR(Upright) )
+	PORT_CONFSETTING(    0x00, DEF_STR(Cocktail) )
 	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_SERVICE1 )
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_TILT )
@@ -409,7 +409,7 @@ GFXDECODE_END
 
 INTERRUPT_GEN_MEMBER(laserbat_state_base::laserbat_interrupt)
 {
-	device.execute().set_input_line_and_vector(0, HOLD_LINE, 0x0a);
+	m_maincpu->set_input_line(0, ASSERT_LINE);
 }
 
 void laserbat_state_base::init_laserbat()
@@ -457,7 +457,7 @@ void laserbat_state_base::device_timer(emu_timer &timer, device_timer_id id, int
 		video_line(ptr, param);
 		break;
 	default:
-		assert_always(false, "Unknown id in laserbat_state_base::device_timer");
+		throw emu_fatalerror("Unknown id in laserbat_state_base::device_timer");
 	}
 }
 
@@ -470,6 +470,7 @@ void laserbat_state_base::laserbat_base(machine_config &config)
 	m_maincpu->set_addrmap(AS_IO, &laserbat_state_base::laserbat_io_map);
 	m_maincpu->set_vblank_int("screen", FUNC(laserbat_state_base::laserbat_interrupt));
 	m_maincpu->sense_handler().set(m_screen, FUNC(screen_device::vblank));
+	m_maincpu->intack_handler().set([this]() { m_maincpu->set_input_line(0, CLEAR_LINE); return 0x0a; });
 
 	// video hardware
 	SCREEN(config, m_screen, SCREEN_TYPE_RASTER);

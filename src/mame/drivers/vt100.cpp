@@ -119,9 +119,8 @@ void vt100_state::vt100_mem(address_map &map)
 {
 	map.unmap_value_high();
 	map(0x0000, 0x1fff).rom();  // ROM ( 4 * 2K)
-	map(0x2000, 0x2bff).ram().share("p_ram"); // Screen and scratch RAM
-	map(0x2c00, 0x2fff).ram();  // AVO Screen RAM
-	map(0x3000, 0x3fff).ram();  // AVO Attribute RAM (4 bits wide)
+	map(0x2000, 0x3fff).ram().share("p_ram"); // Screen and scratch RAM
+	//map(0x3000, 0x3fff).ram();  // AVO Attribute RAM (4 bits wide)
 	// 0x4000, 0x7fff is unassigned
 	map(0x8000, 0x9fff).rom();  // Program memory expansion ROM (4 * 2K)
 	map(0xa000, 0xbfff).rom();  // Program memory expansion ROM (1 * 8K)
@@ -209,17 +208,17 @@ void vt100_state::vt100_io(address_map &map)
 	// 0xC2 Video processor DC011
 	map(0xc2, 0xc2).w(m_crtc, FUNC(vt100_video_device::dc011_w));
 	// 0xE2 Graphics port
-	// map (0xe2, 0xe2)
+	// map(0xe2, 0xe2)
 }
 
 u8 vt100_state::printer_r(offs_t offset)
 {
-	return m_printer_uart->ins8250_r(machine().dummy_space(), offset >> 2);
+	return m_printer_uart->ins8250_r(offset >> 2);
 }
 
 void vt100_state::printer_w(offs_t offset, u8 data)
 {
-	m_printer_uart->ins8250_w(machine().dummy_space(), offset >> 2, data);
+	m_printer_uart->ins8250_w(offset >> 2, data);
 }
 
 void vt100_state::vt102_io(address_map &map)

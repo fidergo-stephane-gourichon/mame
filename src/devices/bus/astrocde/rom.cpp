@@ -17,10 +17,10 @@
 //  astrocade_rom_device - constructor
 //-------------------------------------------------
 
-DEFINE_DEVICE_TYPE(ASTROCADE_ROM_STD,  astrocade_rom_device,      "astrocade_rom",  "Bally Astrocade Standard Carts")
-DEFINE_DEVICE_TYPE(ASTROCADE_ROM_256K, astrocade_rom_256k_device, "astrocade_256k", "Bally Astrocade 256K Carts")
-DEFINE_DEVICE_TYPE(ASTROCADE_ROM_512K, astrocade_rom_512k_device, "astrocade_512k", "Bally Astrocade 512K Carts")
-DEFINE_DEVICE_TYPE(ASTROCADE_ROM_CASS, astrocade_rom_cass_device, "astrocade_cass", "Bally Astrocade AstroBASIC Cart")
+DEFINE_DEVICE_TYPE(ASTROCADE_ROM_STD,  astrocade_rom_device,      "astrocade_rom",      "Bally Astrocade Standard Carts")
+DEFINE_DEVICE_TYPE(ASTROCADE_ROM_256K, astrocade_rom_256k_device, "astrocade_rom_256k", "Bally Astrocade 256K Carts")
+DEFINE_DEVICE_TYPE(ASTROCADE_ROM_512K, astrocade_rom_512k_device, "astrocade_rom_512k", "Bally Astrocade 512K Carts")
+DEFINE_DEVICE_TYPE(ASTROCADE_ROM_CASS, astrocade_rom_cass_device, "astrocade_rom_cass", "Bally Astrocade AstroBASIC Cart")
 
 
 astrocade_rom_device::astrocade_rom_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock)
@@ -75,7 +75,7 @@ void astrocade_rom_512k_device::device_reset()
  mapper specific handlers
  -------------------------------------------------*/
 
-READ8_MEMBER(astrocade_rom_device::read_rom)
+uint8_t astrocade_rom_device::read_rom(offs_t offset)
 {
 	if (offset < m_rom_size)
 		return m_rom[offset];
@@ -83,7 +83,7 @@ READ8_MEMBER(astrocade_rom_device::read_rom)
 		return 0xff;
 }
 
-READ8_MEMBER(astrocade_rom_256k_device::read_rom)
+uint8_t astrocade_rom_256k_device::read_rom(offs_t offset)
 {
 	if (offset < 0x1000)    // 0x2000-0x2fff
 		return m_rom[offset + 0x1000 * 0x3f];
@@ -93,7 +93,7 @@ READ8_MEMBER(astrocade_rom_256k_device::read_rom)
 		return m_base_bank = offset & 0x3f;
 }
 
-READ8_MEMBER(astrocade_rom_512k_device::read_rom)
+uint8_t astrocade_rom_512k_device::read_rom(offs_t offset)
 {
 	if (offset < 0x1000)    // 0x2000-0x2fff
 		return m_rom[offset + 0x1000 * 0x7f];
@@ -103,7 +103,7 @@ READ8_MEMBER(astrocade_rom_512k_device::read_rom)
 		return m_base_bank = offset & 0x7f;
 }
 
-READ8_MEMBER(astrocade_rom_cass_device::read_rom)
+uint8_t astrocade_rom_cass_device::read_rom(offs_t offset)
 {
 	if (offset < m_rom_size)
 		return m_rom[offset];

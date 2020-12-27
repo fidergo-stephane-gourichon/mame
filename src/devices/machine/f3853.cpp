@@ -47,10 +47,11 @@ f3853_device::f3853_device(const machine_config &mconfig, device_type type, cons
 	device_t(mconfig, type, tag, owner, clock),
 	m_int_req_callback(*this),
 	m_pri_out_callback(*this),
+	m_int_daisy_chain_callback(*this),
 	m_int_vector(0),
 	m_prescaler(31),
 	m_priority_line(false),
-	m_external_interrupt_line(true)
+	m_external_interrupt_line(false)
 { }
 
 f3853_device::f3853_device(const machine_config &mconfig, const char *tag, device_t *owner, u32 clock) :
@@ -59,8 +60,8 @@ f3853_device::f3853_device(const machine_config &mconfig, const char *tag, devic
 
 f3851_device::f3851_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, u32 clock) :
 	f3853_device(mconfig, type, tag, owner, clock),
-	m_read_port{{*this}, {*this}},
-	m_write_port{{*this}, {*this}}
+	m_read_port(*this),
+	m_write_port(*this)
 { }
 
 f3851_device::f3851_device(const machine_config &mconfig, const char *tag, device_t *owner, u32 clock) :
@@ -89,7 +90,7 @@ void f3853_device::device_resolve_objects()
 {
 	m_int_req_callback.resolve_safe();
 	m_pri_out_callback.resolve_safe(); // TODO: not implemented
-	m_int_daisy_chain_callback.bind_relative_to(*owner());
+	m_int_daisy_chain_callback.resolve();
 }
 
 void f3851_device::device_resolve_objects()
@@ -97,17 +98,16 @@ void f3851_device::device_resolve_objects()
 	f3853_device::device_resolve_objects();
 
 	// 2 I/O ports
-	for (devcb_read8 &cb : m_read_port)
-		cb.resolve_safe(0);
-	for (devcb_write8 &cb : m_write_port)
-		cb.resolve_safe();
+	m_read_port.resolve_all_safe(0);
+	m_write_port.resolve_all_safe();
 }
 
 void f3853_device::device_start()
 {
 	// lookup table for 3851/3853 lfsr timer
+	m_value_to_cycle[0xff] = 0xff;
 	uint8_t reg = 0xfe; // Known to get 0xfe after 255 cycles
-	for(int i = reg; i >= 0; i--)
+	for (int i = reg; i >= 0; i--)
 	{
 		m_value_to_cycle[reg] = i;
 		reg = reg << 1 | (BIT(reg,7) ^ BIT(reg,5) ^ BIT(reg,4) ^ BIT(reg,3) ^ 1);
@@ -149,7 +149,7 @@ void f3853_device::device_reset()
 
 	// clear ports at power-on
 	for (int i = 0; i < 4; i++)
-		write(machine().dummy_space(), i, 0);
+		write(i, 0);
 }
 
 
@@ -189,25 +189,27 @@ IRQ_CALLBACK_MEMBER(f3853_device::int_acknowledge)
 
 void f3853_device::timer_start(uint8_t value)
 {
-	attotime period = (value != 0xff) ? attotime::from_hz(clock()) * (m_value_to_cycle[value] * m_prescaler) : attotime::never;
+	attotime period = (value != 0xff) ? attotime::from_hz(clock()) * (m_prescaler * m_value_to_cycle[value]) : attotime::never;
 
 	m_timer->adjust(period);
 }
 
 TIMER_CALLBACK_MEMBER(f3853_device::timer_callback)
 {
-	if(m_timer_int_enable)
+	if (m_timer_int_enable)
 	{
 		m_request_flipflop = true;
 		set_interrupt_request_line();
 	}
-	timer_start(0xfe);
+
+	// next timeout after 255 timer counts (prescaler doesn't reset)
+	m_timer->adjust(attotime::from_hz(clock()) * (m_prescaler * 0xff));
 }
 
 
 WRITE_LINE_MEMBER(f3853_device::ext_int_w)
 {
-	if(m_external_interrupt_line && !state && m_external_int_enable)
+	if (!m_external_interrupt_line && state && m_external_int_enable)
 	{
 		m_request_flipflop = true;
 	}
@@ -222,7 +224,7 @@ WRITE_LINE_MEMBER(f3853_device::pri_in_w)
 }
 
 
-READ8_MEMBER(f3853_device::read)
+uint8_t f3853_device::read(offs_t offset)
 {
 	switch (offset & 3)
 	{
@@ -238,7 +240,7 @@ READ8_MEMBER(f3853_device::read)
 	}
 }
 
-WRITE8_MEMBER(f3853_device::write)
+void f3853_device::write(offs_t offset, uint8_t data)
 {
 	switch (offset & 3)
 	{
@@ -271,7 +273,7 @@ WRITE8_MEMBER(f3853_device::write)
 //  f3851_device-specific handlers
 //-------------------------------------------------
 
-READ8_MEMBER(f3851_device::read)
+uint8_t f3851_device::read(offs_t offset)
 {
 	switch (offset & 3)
 	{
@@ -285,7 +287,7 @@ READ8_MEMBER(f3851_device::read)
 	}
 }
 
-WRITE8_MEMBER(f3851_device::write)
+void f3851_device::write(offs_t offset, uint8_t data)
 {
 	switch (offset & 3)
 	{
@@ -296,7 +298,7 @@ WRITE8_MEMBER(f3851_device::write)
 
 	// interrupt control, timer: same as 3853
 	case 2: case 3:
-		f3853_device::write(space, offset, data);
+		f3853_device::write(offset, data);
 		break;
 	}
 }
@@ -329,7 +331,7 @@ TIMER_CALLBACK_MEMBER(f3856_device::timer_callback)
 	timer_start(m_timer_count);
 }
 
-READ8_MEMBER(f3856_device::read)
+uint8_t f3856_device::read(offs_t offset)
 {
 	switch (offset & 3)
 	{
@@ -339,25 +341,25 @@ READ8_MEMBER(f3856_device::read)
 
 	// other: same as 3851
 	default:
-		return f3851_device::read(space, offset);
+		return f3851_device::read(offset);
 	}
 }
 
-WRITE8_MEMBER(f3856_device::write)
+void f3856_device::write(offs_t offset, uint8_t data)
 {
 	switch (offset & 3)
 	{
 	// I/O ports: same as 3851
 	case 0: case 1:
-		f3851_device::write(space, offset, data);
+		f3851_device::write(offset, data);
 		break;
 
 	// interrupt/timer control
 	case 2:
 	{
 		// timer prescaler
-		static const u8 prescaler[8] = { 32, 128, 8, 2 };
-		m_prescaler = prescaler[data >> 5 & 7];
+		static const u8 prescaler[4] = { 32, 128, 8, 2 };
+		m_prescaler = prescaler[data >> 2 & 3];
 
 		// start/stop timer
 		bool prev = m_timer_start;
@@ -374,7 +376,7 @@ WRITE8_MEMBER(f3856_device::write)
 
 	// set timer
 	case 3:
-		f3853_device::write(space, offset, data);
+		f3853_device::write(offset, data);
 		break;
 	}
 }
@@ -384,13 +386,27 @@ WRITE8_MEMBER(f3856_device::write)
 //  f38t56_device-specific handlers
 //-------------------------------------------------
 
-WRITE8_MEMBER(f38t56_device::write)
+uint8_t f38t56_device::read(offs_t offset)
+{
+	switch (offset & 3)
+	{
+	// interrupt: sense ext int pin
+	case 2:
+		return (m_external_interrupt_line) ? 0 : 0x80;
+
+	// other: same as 3856
+	default:
+		return f3856_device::read(offset);
+	}
+}
+
+void f38t56_device::write(offs_t offset, uint8_t data)
 {
 	switch (offset & 3)
 	{
 	// I/O ports: same as 3851
 	case 0: case 1:
-		f3851_device::write(space, offset, data);
+		f3851_device::write(offset, data);
 		break;
 
 	// interrupt/timer control
@@ -418,7 +434,7 @@ WRITE8_MEMBER(f38t56_device::write)
 	// set timer
 	case 3:
 		m_timer_modulo = data;
-		f3853_device::write(space, offset, data);
+		f3853_device::write(offset, data);
 		break;
 	}
 }

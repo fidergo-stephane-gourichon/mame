@@ -43,17 +43,47 @@ to correct the music playback sequencing and also allow sound effect samples to
 play on any of the three available sample channels. The fourth channel is reserved
 for music playback.
 
-HotMind and presumably Lucky Boom have a Jamma expansion board that plugs onto the
-main boards Jamma connector and provides extra I/O using the generic Player-2 pins.
+There is another World Beach Volley with a (undumped) S87C751 for sound instead of a
+PIC (also with an OKI M6295) which fully matches "World Beach Volley (set 1)" for the
+other ROMS. It's an original PCB from Playmark Italy.
+
+HotMind, World Beach Volley and presumably Lucky Boom have a JAMMA expansion board
+that plugs onto the main boards Jamma connector and provides extra I/O using the
+generic Player-2 pins.
 The expansion boards provides I/O for the Token and Ticket dispensers, drive circuit
 for Coin-In Counter and Credit-Out Counter. In the case of HotMind, a 93C46 EEPROM
 for storing game config/stats. The Expansion board then has a male Jamma connector
 that you plug into your Jamma harness.
 
+The World Beach Volley JAMMA expansion board for the 87C751 version follows this layout:
+
+  PLAYMARK ITALY 1995
+  LINK2
+  ____________________________
+  |___    ___________        |
+     |   | TDA1510AQ|        |
+  ___|   |__________|        |
+  |__                        |
+J |__                        |
+A  __|                       |
+M |__                        |
+M |__      ___________       |
+A |__     |_MCT1413P_|       |
+  |__                        |
+  |__                       _|___
+  |__     ____________      |DB9|
+  |__    |SN74LS245N_|      |   | To main PCB
+  |__     ____________      |___|
+  |__    |S87C751-4N24       |
+  |__       ______           |
+  ___|      |XTAL|<-12.000   |
+  |         |____|           |
+  |__________________________|
+
 
 TODO:
-- World Beach Volley and Hard Times sound is controlled by a PIC16C57 whose internal
-  ROM is currently missing.
+- Hard Times sound is controlled by a PIC16C57 whose internal ROM is currently missing.
+- Dump the World Beach Volley sound S87C751 internal ROM.
 - Lucky Boom has some minor colour issue with the background - see the title screen. The
   game selects the wrong colour for some tiles. The tiles should be colour 0x01 not 0x02.
   Affects the backgrounds in game however it's barely noticeable.
@@ -70,7 +100,7 @@ TODO:
 #include "speaker.h"
 
 
-WRITE16_MEMBER(playmark_state::coinctrl_w)
+void playmark_state::coinctrl_w(offs_t offset, uint16_t data, uint16_t mem_mask)
 {
 	if (ACCESSING_BITS_8_15)
 	{
@@ -88,7 +118,7 @@ WRITE16_MEMBER(playmark_state::coinctrl_w)
 
 ***************************************************************************/
 
-WRITE16_MEMBER(playmark_state::wbeachvl_coin_eeprom_w)
+void playmark_state::wbeachvl_coin_eeprom_w(offs_t offset, uint16_t data, uint16_t mem_mask)
 {
 	if (ACCESSING_BITS_0_7)
 	{
@@ -105,7 +135,7 @@ WRITE16_MEMBER(playmark_state::wbeachvl_coin_eeprom_w)
 	}
 }
 
-WRITE16_MEMBER(playmark_state::hotmind_coin_eeprom_w)
+void playmark_state::hotmind_coin_eeprom_w(offs_t offset, uint16_t data, uint16_t mem_mask)
 {
 	if (ACCESSING_BITS_0_7)
 	{
@@ -133,7 +163,7 @@ WRITE16_MEMBER(playmark_state::hotmind_coin_eeprom_w)
 	}
 }
 
-WRITE16_MEMBER(playmark_state::luckboomh_dispenser_w)
+void playmark_state::luckboomh_dispenser_w(offs_t offset, uint16_t data, uint16_t mem_mask)
 {
 	if (ACCESSING_BITS_0_7)
 	{
@@ -157,13 +187,13 @@ WRITE16_MEMBER(playmark_state::luckboomh_dispenser_w)
 	}
 }
 
-WRITE16_MEMBER(playmark_state::hrdtimes_coin_w)
+void playmark_state::hrdtimes_coin_w(uint16_t data)
 {
 	machine().bookkeeping().coin_counter_w(0, data & 0x01);
 	machine().bookkeeping().coin_counter_w(1, data & 0x02);
 }
 
-WRITE16_MEMBER(playmark_state::playmark_snd_command_w)
+void playmark_state::playmark_snd_command_w(offs_t offset, uint16_t data, uint16_t mem_mask)
 {
 	if (ACCESSING_BITS_0_7)
 	{
@@ -175,7 +205,7 @@ WRITE16_MEMBER(playmark_state::playmark_snd_command_w)
 	}
 }
 
-READ8_MEMBER(playmark_state::playmark_snd_command_r)
+uint8_t playmark_state::playmark_snd_command_r()
 {
 	int data = 0;
 
@@ -193,7 +223,7 @@ READ8_MEMBER(playmark_state::playmark_snd_command_r)
 	return data;
 }
 
-READ8_MEMBER(playmark_state::playmark_snd_flag_r)
+uint8_t playmark_state::playmark_snd_flag_r()
 {
 	if (m_snd_flag)
 	{
@@ -205,7 +235,7 @@ READ8_MEMBER(playmark_state::playmark_snd_flag_r)
 }
 
 
-WRITE8_MEMBER(playmark_state::playmark_oki_banking_w)
+void playmark_state::playmark_oki_banking_w(uint8_t data)
 {
 	logerror("%s Writing %02x to PortA  (OKI bank select)\n",machine().describe_context(),data);
 
@@ -214,12 +244,12 @@ WRITE8_MEMBER(playmark_state::playmark_oki_banking_w)
 	m_okibank->set_entry(bank & (m_oki_numbanks - 1));
 }
 
-WRITE8_MEMBER(playmark_state::playmark_oki_w)
+void playmark_state::playmark_oki_w(uint8_t data)
 {
 	m_oki_command = data;
 }
 
-WRITE8_MEMBER(playmark_state::playmark_snd_control_w)
+void playmark_state::playmark_snd_control_w(uint8_t data)
 {
 	/*  This port controls communications to and from the 68K and the OKI device.
 
@@ -242,7 +272,7 @@ WRITE8_MEMBER(playmark_state::playmark_snd_control_w)
 	}
 }
 
-WRITE8_MEMBER(playmark_state::hrdtimes_snd_control_w)
+void playmark_state::hrdtimes_snd_control_w(uint8_t data)
 {
 	/*  This port controls communications to and from the 68K and the OKI device. See playmark_snd_control_w above. OKI banking is also handled here. */
 
@@ -281,7 +311,7 @@ void playmark_state::bigtwin_main_map(address_map &map)
 	map(0x70001c, 0x70001d).portr("DSW1");
 	map(0x70001e, 0x70001f).w(FUNC(playmark_state::playmark_snd_command_w));
 	map(0x780000, 0x7807ff).w(m_palette, FUNC(palette_device::write16)).share("palette");
-//  AM_RANGE(0xe00000, 0xe00001) ?? written on startup
+//  map(0xe00000, 0xe00001) ?? written on startup
 	map(0xff0000, 0xffffff).ram();
 }
 
@@ -314,14 +344,14 @@ void playmark_state::wbeachvl_main_map(address_map &map)
 	map(0x50f000, 0x50ffff).ram().share("rowscroll");
 	map(0x510000, 0x51000b).w(FUNC(playmark_state::wbeachvl_scroll_w));
 	map(0x51000c, 0x51000d).nopw();    /* 2 and 3 */
-//  AM_RANGE(0x700000, 0x700001) ?? written on startup
+//  map(0x700000, 0x700001) ?? written on startup
 	map(0x710010, 0x710011).portr("SYSTEM");
 	map(0x710012, 0x710013).portr("P1");
 	map(0x710014, 0x710015).portr("P2");
 	map(0x710016, 0x710017).w(FUNC(playmark_state::wbeachvl_coin_eeprom_w));
 	map(0x710018, 0x710019).portr("P3");
 	map(0x71001a, 0x71001b).portr("P4");
-//  AM_RANGE(0x71001c, 0x71001d) AM_READ(playmark_snd_status???)
+//  map(0x71001c, 0x71001d).r(FUNC(playmark_state::playmark_snd_status???));
 	map(0x71001e, 0x71001f).w(FUNC(playmark_state::playmark_snd_command_w));
 	map(0x780000, 0x780fff).w(m_palette, FUNC(palette_device::write16)).share("palette");
 	map(0xff0000, 0xffffff).ram();
@@ -370,7 +400,7 @@ void playmark_state::hrdtimes_main_map(address_map &map)
 	map(0x300016, 0x300017).w(FUNC(playmark_state::hrdtimes_coin_w));
 	map(0x30001a, 0x30001b).portr("DSW2");
 	map(0x30001c, 0x30001d).portr("DSW1");
-//  AM_RANGE(0x30001e, 0x30001f) AM_WRITE(playmark_snd_command_w)
+//  map(0x30001e, 0x30001f).w(FUNC(playmark_state::playmark_snd_command_w));
 	map(0x304000, 0x304001).nopw();        /* watchdog? irq ack? */
 }
 
@@ -1003,7 +1033,7 @@ void playmark_state::configure_oki_banks()
 	}
 }
 
-MACHINE_START_MEMBER(playmark_state,playmark)
+void playmark_state::machine_start()
 {
 	save_item(NAME(m_bgscrollx));
 	save_item(NAME(m_bgscrolly));
@@ -1024,7 +1054,7 @@ MACHINE_START_MEMBER(playmark_state,playmark)
 
 
 
-MACHINE_RESET_MEMBER(playmark_state,playmark)
+void playmark_state::machine_reset()
 {
 	m_bgscrollx = 0;
 	m_bgscrolly = 0;
@@ -1054,9 +1084,6 @@ void playmark_state::bigtwin(machine_config &config)
 	m_audiocpu->write_b().set(FUNC(playmark_state::playmark_oki_w));
 	m_audiocpu->read_c().set(FUNC(playmark_state::playmark_snd_flag_r));
 	m_audiocpu->write_c().set(FUNC(playmark_state::playmark_snd_control_w));
-
-	MCFG_MACHINE_START_OVERRIDE(playmark_state,playmark)
-	MCFG_MACHINE_RESET_OVERRIDE(playmark_state,playmark)
 
 	/* video hardware */
 	screen_device &screen(SCREEN(config, "screen", SCREEN_TYPE_RASTER));
@@ -1093,9 +1120,6 @@ void playmark_state::bigtwinb(machine_config &config)
 	m_audiocpu->write_b().set(FUNC(playmark_state::playmark_oki_w));
 	m_audiocpu->read_c().set(FUNC(playmark_state::playmark_snd_flag_r));
 	m_audiocpu->write_c().set(FUNC(playmark_state::playmark_snd_control_w));
-
-	MCFG_MACHINE_START_OVERRIDE(playmark_state,playmark)
-	MCFG_MACHINE_RESET_OVERRIDE(playmark_state,playmark)
 
 	/* video hardware */
 	screen_device &screen(SCREEN(config, "screen", SCREEN_TYPE_RASTER));
@@ -1136,9 +1160,6 @@ void playmark_state::wbeachvl(machine_config &config)
 
 	EEPROM_93C46_16BIT(config, "eeprom").default_value(0);
 
-	MCFG_MACHINE_START_OVERRIDE(playmark_state,playmark)
-	MCFG_MACHINE_RESET_OVERRIDE(playmark_state,playmark)
-
 	/* video hardware */
 	screen_device &screen(SCREEN(config, "screen", SCREEN_TYPE_RASTER));
 	screen.set_refresh_hz(58);
@@ -1174,9 +1195,6 @@ void playmark_state::excelsr(machine_config &config)
 	m_audiocpu->write_b().set(FUNC(playmark_state::playmark_oki_w));
 	m_audiocpu->read_c().set(FUNC(playmark_state::playmark_snd_flag_r));
 	m_audiocpu->write_c().set(FUNC(playmark_state::playmark_snd_control_w));
-
-	MCFG_MACHINE_START_OVERRIDE(playmark_state,playmark)
-	MCFG_MACHINE_RESET_OVERRIDE(playmark_state,playmark)
 
 	/* video hardware */
 	screen_device &screen(SCREEN(config, "screen", SCREEN_TYPE_RASTER));
@@ -1215,9 +1233,6 @@ void playmark_state::hrdtimes(machine_config &config)
 	m_audiocpu->write_c().set(FUNC(playmark_state::hrdtimes_snd_control_w));
 	m_audiocpu->set_disable();       /* Internal code is not dumped yet */
 
-	MCFG_MACHINE_START_OVERRIDE(playmark_state,playmark)
-	MCFG_MACHINE_RESET_OVERRIDE(playmark_state,playmark)
-
 	/* video hardware */
 	screen_device &screen(SCREEN(config, "screen", SCREEN_TYPE_RASTER));
 	screen.set_refresh_hz(58);
@@ -1255,9 +1270,6 @@ void playmark_state::hotmind(machine_config &config)
 	m_audiocpu->write_c().set(FUNC(playmark_state::hrdtimes_snd_control_w));
 
 	EEPROM_93C46_16BIT(config, "eeprom").default_value(0);
-
-	MCFG_MACHINE_START_OVERRIDE(playmark_state,playmark)
-	MCFG_MACHINE_RESET_OVERRIDE(playmark_state,playmark)
 
 	/* video hardware */
 	screen_device &screen(SCREEN(config, "screen", SCREEN_TYPE_RASTER));
@@ -1299,9 +1311,6 @@ void playmark_state::luckboomh(machine_config &config)
 	m_audiocpu->write_c().set(FUNC(playmark_state::hrdtimes_snd_control_w));
 
 	NVRAM(config, "nvram", nvram_device::DEFAULT_ALL_0);
-
-	MCFG_MACHINE_START_OVERRIDE(playmark_state,playmark)
-	MCFG_MACHINE_RESET_OVERRIDE(playmark_state,playmark)
 
 	/* video hardware */
 	screen_device &screen(SCREEN(config, "screen", SCREEN_TYPE_RASTER));

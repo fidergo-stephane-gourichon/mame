@@ -9,7 +9,8 @@
 
  TODO:
    - remove the redundant parts of m_regs
-   - split the Color VDP from the Mono VDP?
+   - split the Color VDP from the Mono VDP
+     - Add support for WSC high/low contrast (register 14, bit 1)
 
  ***************************************************************************/
 
@@ -22,8 +23,14 @@ DEFINE_DEVICE_TYPE(WSWAN_VIDEO, wswan_video_device, "wswan_video", "Bandai Wonde
 
 wswan_video_device::wswan_video_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock)
 	: device_t(mconfig, WSWAN_VIDEO, tag, owner, clock)
-	, m_screen(*this, ":screen")
+	, device_video_interface(mconfig, *this)
+	, m_set_irq_cb(*this)
+	, m_snd_dma_cb(*this)
 	, m_vdp_type(VDP_TYPE_WSWAN)
+{
+}
+
+wswan_video_device::~wswan_video_device()
 {
 }
 
@@ -82,14 +89,14 @@ void wswan_video_device::common_save()
 
 void wswan_video_device::device_start()
 {
-	m_screen->register_screen_bitmap(m_bitmap);
+	screen().register_screen_bitmap(m_bitmap);
 
 	m_timer = timer_alloc(TIMER_SCANLINE);
 	m_timer->adjust(attotime::from_ticks(256, 3072000), 0, attotime::from_ticks(256, 3072000));
 
 	// bind callbacks
-	m_set_irq_cb.bind_relative_to(*owner());
-	m_snd_dma_cb.bind_relative_to(*owner());
+	m_set_irq_cb.resolve();
+	m_snd_dma_cb.resolve();
 
 	if (m_vdp_type == VDP_TYPE_WSC)
 	{
@@ -300,11 +307,11 @@ void wswan_video_device::draw_background()
 					if (col)
 					{
 						if (m_color_mode)
-							m_bitmap.pix16(m_current_line, x_offset) = m_pal[tile_palette][col];
+							m_bitmap.pix(m_current_line, x_offset) = m_pal[tile_palette][col];
 						else
 						{
 							/* Hmmmm, what should we do here... Is this correct?? */
-							m_bitmap.pix16(m_current_line, x_offset) = m_pal[tile_palette][col];
+							m_bitmap.pix(m_current_line, x_offset) = m_pal[tile_palette][col];
 						}
 					}
 				}
@@ -313,9 +320,9 @@ void wswan_video_device::draw_background()
 					if (col || !(tile_palette & 4))
 					{
 						if (m_color_mode)
-							m_bitmap.pix16(m_current_line, x_offset) = m_pal[tile_palette][col];
+							m_bitmap.pix(m_current_line, x_offset) = m_pal[tile_palette][col];
 						else
-							m_bitmap.pix16(m_current_line, x_offset) = m_main_palette[m_pal[tile_palette][col]];
+							m_bitmap.pix(m_current_line, x_offset) = m_main_palette[m_pal[tile_palette][col]];
 					}
 				}
 			}
@@ -409,10 +416,10 @@ void wswan_video_device::draw_foreground_0()
 					if (col)
 					{
 //                      if (m_color_mode) {
-						m_bitmap.pix16(m_current_line, x_offset) = m_pal[tile_palette][col];
+						m_bitmap.pix(m_current_line, x_offset) = m_pal[tile_palette][col];
 //                      } else {
 //                          /* Hmmmm, what should we do here... Is this correct?? */
-//                          m_bitmap.pix16(m_current_line, x_offset) = m_pal[tile_palette][col];
+//                          m_bitmap.pix(m_current_line, x_offset) = m_pal[tile_palette][col];
 //                      }
 					}
 				}
@@ -421,9 +428,9 @@ void wswan_video_device::draw_foreground_0()
 					if (col || !(tile_palette & 4))
 					{
 						if (m_color_mode)
-							m_bitmap.pix16(m_current_line, x_offset) = m_pal[tile_palette][col];
+							m_bitmap.pix(m_current_line, x_offset) = m_pal[tile_palette][col];
 						else
-							m_bitmap.pix16(m_current_line, x_offset) = m_main_palette[m_pal[tile_palette][col]];
+							m_bitmap.pix(m_current_line, x_offset) = m_main_palette[m_pal[tile_palette][col]];
 					}
 				}
 			}
@@ -518,10 +525,10 @@ void wswan_video_device::draw_foreground_2()
 					if (col)
 					{
 						if (m_color_mode)
-							m_bitmap.pix16(m_current_line, x_offset) = m_pal[tile_palette][col];
+							m_bitmap.pix(m_current_line, x_offset) = m_pal[tile_palette][col];
 						else
 							/* Hmmmm, what should we do here... Is this correct?? */
-							m_bitmap.pix16(m_current_line, x_offset) = m_pal[tile_palette][col];
+							m_bitmap.pix(m_current_line, x_offset) = m_pal[tile_palette][col];
 					}
 				}
 				else
@@ -529,9 +536,9 @@ void wswan_video_device::draw_foreground_2()
 					if (col || !(tile_palette & 4))
 					{
 						if (m_color_mode)
-							m_bitmap.pix16(m_current_line, x_offset) = m_pal[tile_palette][col];
+							m_bitmap.pix(m_current_line, x_offset) = m_pal[tile_palette][col];
 						else
-							m_bitmap.pix16(m_current_line, x_offset) = m_main_palette[m_pal[tile_palette][col]];
+							m_bitmap.pix(m_current_line, x_offset) = m_main_palette[m_pal[tile_palette][col]];
 					}
 				}
 			}
@@ -625,10 +632,10 @@ void wswan_video_device::draw_foreground_3()
 					if (col)
 					{
 						if (m_color_mode)
-							m_bitmap.pix16(m_current_line, x_offset) = m_pal[tile_palette][col];
+							m_bitmap.pix(m_current_line, x_offset) = m_pal[tile_palette][col];
 						else
 							/* Hmmmm, what should we do here... Is this correct?? */
-							m_bitmap.pix16(m_current_line, x_offset) = m_pal[tile_palette][col];
+							m_bitmap.pix(m_current_line, x_offset) = m_pal[tile_palette][col];
 					}
 				}
 				else
@@ -636,9 +643,9 @@ void wswan_video_device::draw_foreground_3()
 					if (col || !(tile_palette & 4))
 					{
 						if (m_color_mode)
-							m_bitmap.pix16(m_current_line, x_offset) = m_pal[tile_palette][col];
+							m_bitmap.pix(m_current_line, x_offset) = m_pal[tile_palette][col];
 						else
-							m_bitmap.pix16(m_current_line, x_offset) = m_main_palette[m_pal[tile_palette][col]];
+							m_bitmap.pix(m_current_line, x_offset) = m_main_palette[m_pal[tile_palette][col]];
 					}
 				}
 			}
@@ -768,10 +775,10 @@ void wswan_video_device::handle_sprites(int mask)
 						if (col)
 						{
 							if (m_color_mode)
-								m_bitmap.pix16(m_current_line, x_offset) = m_pal[tile_palette][col];
+								m_bitmap.pix(m_current_line, x_offset) = m_pal[tile_palette][col];
 							else
 								/* Hmmmm, what should we do here... Is this correct?? */
-								m_bitmap.pix16(m_current_line, x_offset) = m_pal[tile_palette][col];
+								m_bitmap.pix(m_current_line, x_offset) = m_pal[tile_palette][col];
 						}
 					}
 					else
@@ -779,9 +786,9 @@ void wswan_video_device::handle_sprites(int mask)
 						if (col || !(tile_palette & 4))
 						{
 							if (m_color_mode)
-								m_bitmap.pix16(m_current_line, x_offset) = m_pal[tile_palette][col];
+								m_bitmap.pix(m_current_line, x_offset) = m_pal[tile_palette][col];
 							else
-								m_bitmap.pix16(m_current_line, x_offset) = m_main_palette[m_pal[tile_palette][col]];
+								m_bitmap.pix(m_current_line, x_offset) = m_main_palette[m_pal[tile_palette][col]];
 						}
 					}
 				}
@@ -798,8 +805,7 @@ void wswan_video_device::refresh_scanline()
 	rectangle rec(0, WSWAN_X_PIXELS, m_current_line, m_current_line);
 	if (m_lcd_control)
 	{
-		/* Not sure if these background color checks and settings are correct */
-		if (m_color_mode && m_colors_16)
+		if (m_color_mode)
 			m_bitmap.fill(m_pal[m_bg_control >> 4][m_bg_control & 0x0f], rec);
 		else
 			m_bitmap.fill(m_main_palette[m_bg_control & 0x07], rec);
@@ -1001,7 +1007,8 @@ void wswan_video_device::reg_w(offs_t offset, uint8_t data)
 			break;
 		case 0x14:  // LCD control
 					// Bit 0   - LCD enable
-					// Bit 1-7 - Unknown
+					// Bit 1   - WSC only, brightness low/high
+					// Bit 2-7 - Unknown
 			m_lcd_control = data;
 			break;
 		case 0x15:  // LCD icons

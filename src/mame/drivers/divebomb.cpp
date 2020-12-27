@@ -134,7 +134,7 @@ void divebomb_state::divebomb_fgcpu_iomap(address_map &map)
 }
 
 
-READ8_MEMBER(divebomb_state::fgcpu_comm_flags_r)
+uint8_t divebomb_state::fgcpu_comm_flags_r()
 {
 	uint8_t result = 0;
 
@@ -170,7 +170,7 @@ void divebomb_state::divebomb_spritecpu_iomap(address_map &map)
 }
 
 
-WRITE8_MEMBER(divebomb_state::spritecpu_port00_w)
+void divebomb_state::spritecpu_port00_w(uint8_t data)
 {
 	// Written with 0x00 on reset
 	// Written with 0x34 7 times in succession on occasion (see PC:0x00E3)
@@ -184,14 +184,14 @@ WRITE8_MEMBER(divebomb_state::spritecpu_port00_w)
  *************************************/
 
 template<int Chip>
-WRITE8_MEMBER(divebomb_state::rozcpu_wrap_enable_w)
+void divebomb_state::rozcpu_wrap_enable_w(uint8_t data)
 {
 	m_k051316[Chip]->wraparound_enable(!(data & 1));
 }
 
 
 template<int Chip>
-WRITE8_MEMBER(divebomb_state::rozcpu_enable_w)
+void divebomb_state::rozcpu_enable_w(uint8_t data)
 {
 	m_roz_enable[Chip] = !(data & 1);
 }
@@ -222,7 +222,7 @@ void divebomb_state::divebomb_rozcpu_iomap(address_map &map)
 }
 
 
-WRITE8_MEMBER(divebomb_state::rozcpu_bank_w)
+void divebomb_state::rozcpu_bank_w(uint8_t data)
 {
 	uint32_t bank = bitswap<8>(data, 4, 5, 6, 7, 3, 2, 1, 0) >> 4;
 	m_rozbank->set_entry(bank);
@@ -386,21 +386,21 @@ GFXDECODE_END
  *
  *************************************/
 
-MACHINE_CONFIG_START(divebomb_state::divebomb)
+void divebomb_state::divebomb(machine_config &config)
+{
+	Z80(config, m_fgcpu, XTAL1/4); // ?
+	m_fgcpu->set_addrmap(AS_PROGRAM, &divebomb_state::divebomb_fgcpu_map);
+	m_fgcpu->set_addrmap(AS_IO, &divebomb_state::divebomb_fgcpu_iomap);
 
-	MCFG_DEVICE_ADD("fgcpu", Z80,XTAL1/4) // ?
-	MCFG_DEVICE_PROGRAM_MAP(divebomb_fgcpu_map)
-	MCFG_DEVICE_IO_MAP(divebomb_fgcpu_iomap)
+	Z80(config, m_spritecpu, XTAL1/4); // ?
+	m_spritecpu->set_addrmap(AS_PROGRAM, &divebomb_state::divebomb_spritecpu_map);
+	m_spritecpu->set_addrmap(AS_IO, &divebomb_state::divebomb_spritecpu_iomap);
 
-	MCFG_DEVICE_ADD("spritecpu", Z80,XTAL1/4) // ?
-	MCFG_DEVICE_PROGRAM_MAP(divebomb_spritecpu_map)
-	MCFG_DEVICE_IO_MAP(divebomb_spritecpu_iomap)
+	Z80(config, m_rozcpu, XTAL1/4); // ?
+	m_rozcpu->set_addrmap(AS_PROGRAM, &divebomb_state::divebomb_rozcpu_map);
+	m_rozcpu->set_addrmap(AS_IO, &divebomb_state::divebomb_rozcpu_iomap);
 
-	MCFG_DEVICE_ADD("rozcpu", Z80,XTAL1/4) // ?
-	MCFG_DEVICE_PROGRAM_MAP(divebomb_rozcpu_map)
-	MCFG_DEVICE_IO_MAP(divebomb_rozcpu_iomap)
-
-	config.m_perfect_cpu_quantum = subtag("fgcpu");
+	config.set_perfect_quantum(m_fgcpu);
 
 	INPUT_MERGER_ANY_HIGH(config, m_fgcpu_irq).output_handler().set_inputline(m_fgcpu, INPUT_LINE_IRQ0);
 
@@ -419,19 +419,14 @@ MACHINE_CONFIG_START(divebomb_state::divebomb)
 	m_k051316[0]->set_bpp(8);
 	m_k051316[0]->set_wrap(0);
 	m_k051316[0]->set_offsets(-88, -16);
-	m_k051316[0]->set_zoom_callback(FUNC(divebomb_state::zoom_callback_1), this);
+	m_k051316[0]->set_zoom_callback(FUNC(divebomb_state::zoom_callback_1));
 
 	K051316(config, m_k051316[1], 0);
 	m_k051316[1]->set_palette(m_palette);
 	m_k051316[1]->set_bpp(8);
 	m_k051316[1]->set_wrap(0);
 	m_k051316[1]->set_offsets(-88, -16);
-	m_k051316[1]->set_zoom_callback(FUNC(divebomb_state::zoom_callback_2), this);
-
-	MCFG_MACHINE_START_OVERRIDE(divebomb_state, divebomb)
-	MCFG_MACHINE_RESET_OVERRIDE(divebomb_state, divebomb)
-
-	MCFG_VIDEO_START_OVERRIDE(divebomb_state, divebomb)
+	m_k051316[1]->set_zoom_callback(FUNC(divebomb_state::zoom_callback_2));
 
 	/* video hardware */
 	screen_device &screen(SCREEN(config, "screen", SCREEN_TYPE_RASTER));
@@ -452,19 +447,13 @@ MACHINE_CONFIG_START(divebomb_state::divebomb)
 	SPEAKER(config, "mono").front_center();
 
 	// All frequencies unverified
-	MCFG_DEVICE_ADD("sn0", SN76489, XTAL1/8)
-	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.15)
-	MCFG_DEVICE_ADD("sn1", SN76489, XTAL1/8)
-	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.15)
-	MCFG_DEVICE_ADD("sn2", SN76489, XTAL1/8)
-	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.15)
-	MCFG_DEVICE_ADD("sn3", SN76489, XTAL1/8)
-	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.15)
-	MCFG_DEVICE_ADD("sn4", SN76489, XTAL1/8)
-	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.15)
-	MCFG_DEVICE_ADD("sn5", SN76489, XTAL1/8)
-	MCFG_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.15)
-MACHINE_CONFIG_END
+	SN76489(config, "sn0", XTAL1/8).add_route(ALL_OUTPUTS, "mono", 0.15);
+	SN76489(config, "sn1", XTAL1/8).add_route(ALL_OUTPUTS, "mono", 0.15);
+	SN76489(config, "sn2", XTAL1/8).add_route(ALL_OUTPUTS, "mono", 0.15);
+	SN76489(config, "sn3", XTAL1/8).add_route(ALL_OUTPUTS, "mono", 0.15);
+	SN76489(config, "sn4", XTAL1/8).add_route(ALL_OUTPUTS, "mono", 0.15);
+	SN76489(config, "sn5", XTAL1/8).add_route(ALL_OUTPUTS, "mono", 0.15);
+}
 
 
 
@@ -544,7 +533,7 @@ ROM_END
  *
  *************************************/
 
-MACHINE_START_MEMBER(divebomb_state, divebomb)
+void divebomb_state::machine_start()
 {
 	m_rozbank->configure_entries(0, 16, memregion("rozcpudata")->base(), 0x4000);
 
@@ -553,7 +542,7 @@ MACHINE_START_MEMBER(divebomb_state, divebomb)
 }
 
 
-MACHINE_RESET_MEMBER(divebomb_state, divebomb)
+void divebomb_state::machine_reset()
 {
 	for (int chip = 0; chip < 2; chip++)
 	{

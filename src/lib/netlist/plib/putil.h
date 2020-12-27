@@ -1,30 +1,114 @@
 // license:GPL-2.0+
 // copyright-holders:Couriersud
-/*
- * putil.h
- *
- */
 
 #ifndef PUTIL_H_
 #define PUTIL_H_
 
+///
+/// \file putil.h
+///
+
+#include "palloc.h"
+#include "pexception.h"
 #include "pstring.h"
 
 #include <algorithm>
 #include <initializer_list>
+#include <sstream>
 #include <vector>
 
 #define PSTRINGIFY_HELP(y) # y
 #define PSTRINGIFY(x) PSTRINGIFY_HELP(x)
 
+// Discussion and background of this MSVC bug: https://github.com/mamedev/mame/issues/6106
+///
+/// \brief Macro to work around a bug in MSVC treatment of __VA_ARGS__
+///
+#define PMSVC_VARARG_BUG(MACRO, ARGS) MACRO ARGS
+
+/// \brief Determine number of arguments in __VA_ARGS__
+///
+/// This macro works up to 16 arguments in __VA_ARGS__
+///
+/// \returns Number of arguments
+///
+#define PNARGS(...) PNARGS_1(__VA_ARGS__, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
+
+#define PNARGS_2(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, N, ...) N
+#define PNARGS_1(...) PMSVC_VARARG_BUG(PNARGS_2, (__VA_ARGS__))
+
+/// \brief Concatenate two arguments after expansion
+///
+/// \returns Concatenated expanded arguments
+///
+#define PCONCAT(a, b) PCONCAT_(a, b)
+
+#define PCONCAT_(a, b) a ## b
+
+#define PSTRINGIFY_1(x)                             #x
+#define PSTRINGIFY_2(x, x2)                         #x, #x2
+#define PSTRINGIFY_3(x, x2, x3)                     #x, #x2, #x3
+#define PSTRINGIFY_4(x, x2, x3, x4)                 #x, #x2, #x3, #x4
+#define PSTRINGIFY_5(x, x2, x3, x4, x5)             #x, #x2, #x3, #x4, #x5
+#define PSTRINGIFY_6(x, x2, x3, x4, x5, x6)         #x, #x2, #x3, #x4, #x5, #x6
+#define PSTRINGIFY_7(x, x2, x3, x4, x5, x6, x7)     #x, #x2, #x3, #x4, #x5, #x6, #x7
+#define PSTRINGIFY_8(x, x2, x3, x4, x5, x6, x7, x8) #x, #x2, #x3, #x4, #x5, #x6, #x7, #x8
+#define PSTRINGIFY_9(x, x2, x3, x4, x5, x6, x7, x8, x9) \
+	#x, #x2, #x3, #x4, #x5, #x6, #x7, #x8, #x9
+#define PSTRINGIFY_10(x, x2, x3, x4, x5, x6, x7, x8, x9, xa) \
+	#x, #x2, #x3, #x4, #x5, #x6, #x7, #x8, #x9, #xa
+#define PSTRINGIFY_11(x, x2, x3, x4, x5, x6, x7, x8, x9, xa, xb) \
+	#x, #x2, #x3, #x4, #x5, #x6, #x7, #x8, #x9, #xa, #xb
+#define PSTRINGIFY_12(x, x2, x3, x4, x5, x6, x7, x8, x9, xa, xb, xc) \
+	#x, #x2, #x3, #x4, #x5, #x6, #x7, #x8, #x9, #xa, #xb, #xc
+#define PSTRINGIFY_13(x, x2, x3, x4, x5, x6, x7, x8, x9, xa, xb, xc, xd) \
+	#x, #x2, #x3, #x4, #x5, #x6, #x7, #x8, #x9, #xa, #xb, #xc, #xd
+#define PSTRINGIFY_14(x, x2, x3, x4, x5, x6, x7, x8, x9, xa, xb, xc, xd, xe) \
+	#x, #x2, #x3, #x4, #x5, #x6, #x7, #x8, #x9, #xa, #xb, #xc, #xd, #xe
+#define PSTRINGIFY_15(x, x2, x3, x4, x5, x6, x7, x8, x9, xa, xb, xc, xd, xe, xf) \
+	#x, #x2, #x3, #x4, #x5, #x6, #x7, #x8, #x9, #xa, #xb, #xc, #xd, #xe, #xf
+#define PSTRINGIFY_16(x, x2, x3, x4, x5, x6, x7, x8, x9, xa, xb, xc, xd, xe, xf, x10) \
+	#x, #x2, #x3, #x4, #x5, #x6, #x7, #x8, #x9, #xa, #xb, #xc, #xd, #xe, #xf, #x10
+
+/// \brief Individually stringify up to 16 arguments
+///
+/// PSTRINGIFY_VA(a, b, c) will be expanded to "a", "b", "c"
+///
+/// \returns List of stringified individual arguments
+///
+#define PSTRINGIFY_VA(...) PMSVC_VARARG_BUG(PCONCAT, (PSTRINGIFY_, PNARGS(__VA_ARGS__)))(__VA_ARGS__)
+
+/// \brief Dispatch VARARG macro to specialized macros
+///
+/// ```
+/// #define LOCAL_LIB_ENTRY(...) PCALLVARARG(LOCAL_LIB_ENTRY_, __VA_ARGS__)
+/// ```
+///
+/// Will pass varargs depending on number of arguments to
+///
+/// ```
+/// LOCAL_LIB_ENTRY_1(a1)
+/// LOCAL_LIB_ENTRY_2(a1 , a2)
+/// ```
+///
+/// \returns result of specialized macro
+///
+#define PCALLVARARG(MAC, ...) PMSVC_VARARG_BUG(PCONCAT, (MAC, PNARGS(__VA_ARGS__)))(__VA_ARGS__)
+
+// FIXME:: __FUNCTION__ may be not be supported by all compilers.
+
+#define PSOURCELOC() plib::source_location(__FILE__, __LINE__)
 
 namespace plib
 {
 
 	namespace util
 	{
-		const pstring buildpath(std::initializer_list<pstring> list );
-		const pstring environment(const pstring &var, const pstring &default_val);
+		pstring basename(const pstring &filename, const pstring &suffix = "");
+		pstring path(const pstring &filename);
+		bool    exists(const pstring &filename);
+		pstring buildpath(std::initializer_list<pstring> list );
+		pstring environment(const pstring &var, const pstring &default_val);
 	} // namespace util
 
 	namespace container
@@ -41,14 +125,14 @@ namespace plib
 		{
 			auto it = std::find(con.begin(), con.end(), elem);
 			if (it != con.end())
-				return static_cast<std::size_t>(it - con.begin());
+				return narrow_cast<std::size_t>(it - con.begin());
 			return npos;
 		}
 
 		template <class C>
 		void insert_at(C &con, const std::size_t index, const typename C::value_type &elem)
 		{
-			con.insert(con.begin() + static_cast<std::ptrdiff_t>(index), elem);
+			con.insert(con.begin() + narrow_cast<std::ptrdiff_t>(index), elem);
 		}
 
 		template <class C>
@@ -58,72 +142,19 @@ namespace plib
 		}
 	} // namespace container
 
-	/* May be further specialized .... This is the generic version */
+	// ----------------------------------------------------------------------------------------
+	// simple hash
+	// ----------------------------------------------------------------------------------------
+
 	template <typename T>
-	struct constants
+	std::size_t hash(const T *buf, std::size_t size)
 	{
-		static constexpr T zero() noexcept { return static_cast<T>(0); }
-		static constexpr T one()  noexcept { return static_cast<T>(1); }
-		static constexpr T two()  noexcept { return static_cast<T>(2); }
-
-		template <typename V>
-		static constexpr const T cast(V &&v) noexcept { return static_cast<T>(v); }
-	};
-
-	static_assert(noexcept(constants<double>::one()) == true, "Not evaluated as constexpr");
-
-
-	template <class C>
-	struct indexed_compare
-	{
-		explicit indexed_compare(const C& target): m_target(target) {}
-
-		bool operator()(int a, int b) const { return m_target[a] < m_target[b]; }
-
-		const C& m_target;
-	};
-
-	// ----------------------------------------------------------------------------------------
-	// string list
-	// ----------------------------------------------------------------------------------------
-
-	std::vector<pstring> psplit(const pstring &str, const pstring &onstr, bool ignore_empty = false);
-	std::vector<pstring> psplit(const pstring &str, const std::vector<pstring> &onstrl);
-	std::vector<std::string> psplit_r(const std::string &stri,
-			const std::string &token,
-			const std::size_t maxsplit);
-
-
-	//============================================================
-	//  penum - strongly typed enumeration
-	//============================================================
-
-	struct penum_base
-	{
-	protected:
-		static int from_string_int(const char *str, const char *x);
-		static std::string nthstr(int n, const char *str);
-	};
+		std::size_t result = 5381; // NOLINT
+		for (const T* p = buf; p != buf + size; p++)
+			result = ((result << 5) + result ) ^ (result >> (32 - 5)) ^ narrow_cast<std::size_t>(*p); // NOLINT
+		return result;
+	}
 
 } // namespace plib
 
-#define P_ENUM(ename, ...) \
-	struct ename : public plib::penum_base { \
-		enum E { __VA_ARGS__ }; \
-		ename (E v) : m_v(v) { } \
-		bool set_from_string (const std::string &s) { \
-			static char const *const strings = # __VA_ARGS__; \
-			int f = from_string_int(strings, s.c_str()); \
-			if (f>=0) { m_v = static_cast<E>(f); return true; } else { return false; } \
-		} \
-		operator E() const {return m_v;} \
-		bool operator==(const ename &rhs) const {return m_v == rhs.m_v;} \
-		bool operator==(const E &rhs) const {return m_v == rhs;} \
-		std::string name() const { \
-			static char const *const strings = # __VA_ARGS__; \
-			return nthstr(static_cast<int>(m_v), strings); \
-		} \
-		private: E m_v; };
-
-
-#endif /* PUTIL_H_ */
+#endif // PUTIL_H_

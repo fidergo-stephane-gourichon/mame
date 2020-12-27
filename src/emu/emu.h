@@ -19,6 +19,7 @@
 #define __EMU_H__
 
 #include <list>
+#include <forward_list>
 #include <vector>
 #include <memory>
 #include <map>
@@ -37,7 +38,6 @@
 
 // commonly-referenced utilities imported from lib/util
 #include "palette.h"
-#include "unicode.h"
 #include "strformat.h"
 #include "vecstream.h"
 
@@ -49,7 +49,6 @@
 
 // memory and address spaces
 #include "emumem.h"
-#include "memarray.h"
 
 // machine-wide utilities
 #include "romentry.h"
@@ -66,7 +65,6 @@
 #include "addrmap.h" // Needs optional_device<> and required_device<>
 #include "distate.h"
 #include "dimemory.h"
-#include "dirom.h"
 #include "opresolv.h"
 #include "dipalette.h"
 #include "digfx.h"
@@ -94,7 +92,6 @@
 
 // video-related
 #include "drawgfx.h"
-#include "tilemap.h"
 #include "video.h"
 
 // sound-related

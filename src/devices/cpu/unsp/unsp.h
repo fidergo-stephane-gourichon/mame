@@ -1,5 +1,5 @@
 // license:GPL-2.0+
-// copyright-holders:Segher Boessenkool,Ryan Holtz
+// copyright-holders:Segher Boessenkool, Ryan Holtz, David Haywood
 /*****************************************************************************
 
     SunPlus µ'nSP emulator
@@ -20,6 +20,7 @@
 #include "cpu/drcfe.h"
 #include "cpu/drcuml.h"
 #include "cpu/drcumlsh.h"
+#include "unspdefs.h"
 
 /***************************************************************************
     CONSTANTS
@@ -31,7 +32,7 @@
 
 #define SINGLE_INSTRUCTION_MODE (0)
 
-#define ENABLE_UNSP_DRC         (1)
+#define ENABLE_UNSP_DRC         (0)
 
 #define UNSP_LOG_OPCODES        (0)
 #define UNSP_LOG_REGS           (0)
@@ -59,13 +60,17 @@ enum
 
 	UNSP_IRQ_EN,
 	UNSP_FIQ_EN,
-	UNSP_IRQ,
-	UNSP_FIQ,
-#if UNSP_LOG_OPCODES || UNSP_LOG_REGS
+	UNSP_FIR_MOV_EN,
 	UNSP_SB,
+	UNSP_AQ,
+	UNSP_FRA,
+	UNSP_BNK,
+	UNSP_INE,
+#if UNSP_LOG_OPCODES || UNSP_LOG_REGS
+	UNSP_PRI,
 	UNSP_LOG_OPS
 #else
-	UNSP_SB
+	UNSP_PRI
 #endif
 };
 
@@ -92,18 +97,15 @@ class unsp_device : public cpu_device
 public:
 	// construction/destruction
 	unsp_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
-
-	// HACK: IRQ line state can only be modified directly by hardware on-board the SPG SoC itself.
-	// Therefore, to avoid an unnecessary scheduler sync when the external spg2xx_device sets or
-	// clears an interrupt line, we provide this direct accessor.
-	// A more correct but longer-term solution will be to move spg2xx_device to be internal to
-	// a subclass of unsp_device rather than its own standalone device.
-	void set_state_unsynced(int inputnum, int state);
+	virtual ~unsp_device();
 
 	uint8_t get_csb();
 
 	void set_ds(uint16_t ds);
 	uint16_t get_ds();
+
+	void set_fr(uint16_t fr);
+	uint16_t get_fr();
 
 	inline void ccfunc_unimplemented();
 	void invalidate_cache();
@@ -114,16 +116,20 @@ public:
 	void cfunc_log_write();
 #endif
 
+	void cfunc_muls();
+
 protected:
+	unsp_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock, address_map_constructor internal);
+
 	// device-level overrides
 	virtual void device_start() override;
 	virtual void device_reset() override;
 	virtual void device_stop() override;
 
 	// device_execute_interface overrides
-	virtual uint32_t execute_min_cycles() const override { return 5; }
-	virtual uint32_t execute_max_cycles() const override { return 5; }
-	virtual uint32_t execute_input_lines() const override { return 0; }
+	virtual uint32_t execute_min_cycles() const noexcept override { return 5; }
+	virtual uint32_t execute_max_cycles() const noexcept override { return 5; }
+	virtual uint32_t execute_input_lines() const noexcept override { return 0; }
 	virtual void execute_run() override;
 	virtual void execute_set_input(int inputnum, int state) override;
 
@@ -131,12 +137,128 @@ protected:
 	virtual space_config_vector memory_space_config() const override;
 
 	// device_state_interface overrides
-	virtual void state_import(const device_state_entry &entry) override;
-	virtual void state_export(const device_state_entry &entry) override;
-	virtual void state_string_export(const device_state_entry &entry, std::string &str) const override;
+	virtual void state_import(const device_state_entry& entry) override;
+	virtual void state_export(const device_state_entry& entry) override;
+	virtual void state_string_export(const device_state_entry& entry, std::string& str) const override;
 
 	// device_disasm_interface overrides
 	virtual std::unique_ptr<util::disasm_interface> create_disassembler() override;
+
+	// HACK: IRQ line state can only be modified directly by hardware on-board the SPG SoC itself.
+	// Therefore, to avoid an unnecessary scheduler sync when the derived spg2xx_device sets or
+	// clears an interrupt line, we provide this direct accessor.
+	void set_state_unsynced(int inputnum, int state);
+
+	enum : uint32_t
+	{
+		REG_SP = 0,
+		REG_R1,
+		REG_R2,
+		REG_R3,
+		REG_R4,
+		REG_BP,
+		REG_SR,
+		REG_PC,
+
+		REG_SR1 = 0,
+		REG_SR2,
+		REG_SR3,
+		REG_SR4
+	};
+
+	/* internal compiler state */
+	struct compiler_state
+	{
+		compiler_state(compiler_state const&) = delete;
+		compiler_state& operator=(compiler_state const&) = delete;
+
+		uint32_t m_cycles;          /* accumulated cycles */
+		uml::code_label m_labelnum; /* index for local labels */
+	};
+
+	struct internal_unsp_state
+	{
+		uint32_t m_r[16]; // required to be 32 bits due to DRC
+		uint32_t m_secbank[4];
+		uint32_t m_enable_irq;
+		uint32_t m_enable_fiq;
+		uint32_t m_fir_move;
+		uint32_t m_fiq;
+		uint32_t m_irq;
+		uint32_t m_sirq;
+		uint32_t m_sb;
+		uint32_t m_aq;
+		uint32_t m_fra;
+		uint32_t m_bnk;
+		uint32_t m_ine;
+		uint32_t m_pri;
+
+		uint32_t m_divq_bit;
+		uint32_t m_divq_dividend;
+		uint32_t m_divq_divisor;
+		uint32_t m_divq_a;
+
+		uint32_t m_arg0;
+		uint32_t m_arg1;
+		uint32_t m_jmpdest;
+
+		int m_icount;
+	};
+
+	/* core state */
+	internal_unsp_state* m_core;
+
+protected:
+	uint16_t read16(uint32_t address) { return m_program.read_word(address); }
+
+	void write16(uint32_t address, uint16_t data)
+	{
+	#if UNSP_LOG_REGS
+		log_write(address, data);
+	#endif
+		m_program.write_word(address, data);
+	}
+
+	void add_lpc(const int32_t offset)
+	{
+		const uint32_t new_lpc = UNSP_LPC + offset;
+		m_core->m_r[REG_PC] = (uint16_t)new_lpc;
+		m_core->m_r[REG_SR] &= 0xffc0;
+		m_core->m_r[REG_SR] |= (new_lpc >> 16) & 0x3f;
+	}
+
+	void execute_fxxx_000_group(uint16_t op);
+	void execute_fxxx_001_group(uint16_t op);
+	void execute_fxxx_010_group(uint16_t op);
+	void execute_fxxx_011_group(uint16_t op);
+	virtual void execute_fxxx_101_group(uint16_t op);
+	void execute_fxxx_110_group(uint16_t op);
+	void execute_fxxx_111_group(uint16_t op);
+	void execute_fxxx_group(uint16_t op);
+	void execute_fxxx_100_group(uint16_t op);
+	virtual void execute_extended_group(uint16_t op);
+	virtual void execute_exxx_group(uint16_t op);
+	void execute_muls_ss(const uint16_t rd, const uint16_t rs, const uint16_t size);
+	void unimplemented_opcode(uint16_t op);
+	void unimplemented_opcode(uint16_t op, uint16_t ximm);
+	void unimplemented_opcode(uint16_t op, uint16_t ximm, uint16_t ximm_2);
+	virtual bool op_is_divq(const uint16_t op) { return false; }
+
+	int m_iso;
+
+	static char const *const regs[];
+	static char const *const extregs[];
+	static char const *const bitops[];
+	static char const *const lsft[];
+	static char const *const aluops[];
+	static char const *const forms[];
+
+	void push(uint32_t value, uint32_t *reg);
+	uint16_t pop(uint32_t *reg);
+
+	void update_nz(uint32_t value);
+	void update_nzsc(uint32_t value, uint16_t r0, uint16_t r1);
+	bool do_basic_alu_ops(const uint16_t& op0, uint32_t& lres, uint16_t& r0, uint16_t& r1, uint32_t& r2, bool update_flags);
 
 private:
 	// compilation boundaries -- how far back/forward does the analysis extend?
@@ -157,66 +279,27 @@ private:
 		EXECUTE_RESET_CACHE         = 3
 	};
 
-	enum : uint32_t
-	{
-		REG_SP = 0,
-		REG_R1,
-		REG_R2,
-		REG_R3,
-		REG_R4,
-		REG_BP,
-		REG_SR,
-		REG_PC
-	};
 
-	void add_lpc(const int32_t offset);
+	void execute_jumps(const uint16_t op);
+	void execute_remaining(const uint16_t op);
+	void execute_one(const uint16_t op);
 
-	inline void execute_one(const uint16_t op);
 
-	struct internal_unsp_state
-	{
-		uint32_t m_r[8];
-		uint32_t m_enable_irq;
-		uint32_t m_enable_fiq;
-		uint32_t m_irq;
-		uint32_t m_fiq;
-		uint32_t m_curirq;
-		uint32_t m_sirq;
-		uint32_t m_sb;
-		uint32_t m_saved_sb[3];
-
-		uint32_t m_arg0;
-		uint32_t m_arg1;
-		uint32_t m_jmpdest;
-
-		int m_icount;
-	};
 
 	address_space_config m_program_config;
-	address_space *m_program;
-	std::function<u16 (offs_t)> m_pr16;
-	std::function<const void * (offs_t)> m_prptr;
-
-	/* core state */
-	internal_unsp_state *m_core;
+	memory_access<23, 1, -1, ENDIANNESS_BIG>::cache m_cache;
+	memory_access<23, 1, -1, ENDIANNESS_BIG>::specific m_program;
 
 	uint32_t m_debugger_temp;
 #if UNSP_LOG_OPCODES || UNSP_LOG_REGS
 	uint32_t m_log_ops;
 #endif
 
-	void unimplemented_opcode(uint16_t op);
-	inline uint16_t read16(uint32_t address);
-	inline void write16(uint32_t address, uint16_t data);
-	inline void update_nz(uint32_t value);
-	inline void update_nzsc(uint32_t value, uint16_t r0, uint16_t r1);
-	inline void push(uint32_t value, uint32_t *reg);
-	inline uint16_t pop(uint32_t *reg);
 	inline void trigger_fiq();
 	inline void trigger_irq(int line);
-	inline void check_irqs();
+	void check_irqs();
 
-	drc_cache m_cache;
+	drc_cache m_drccache;
 	std::unique_ptr<drcuml_state> m_drcuml;
 	std::unique_ptr<unsp_frontend> m_drcfe;
 	uint32_t m_drcoptions;
@@ -234,16 +317,6 @@ private:
 	uml::code_handle *m_mem_write;
 
 	bool m_enable_drc;
-
-	/* internal compiler state */
-	struct compiler_state
-	{
-		compiler_state(compiler_state const &) = delete;
-		compiler_state &operator=(compiler_state const &) = delete;
-
-		uint32_t m_cycles;          /* accumulated cycles */
-		uml::code_label m_labelnum; /* index for local labels */
-	};
 
 	void execute_run_drc();
 	void flush_drc_cache();
@@ -273,9 +346,75 @@ private:
 #if UNSP_LOG_REGS
 	FILE *m_log_file;
 #endif
+protected:
+	int m_numregs;
 };
 
 
-DECLARE_DEVICE_TYPE(UNSP, unsp_device)
+class unsp_11_device : public unsp_device
+{
+public:
+	// construction/destruction
+	unsp_11_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+
+protected:
+	unsp_11_device(const machine_config& mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock, address_map_constructor internal);
+
+private:
+};
+
+class unsp_12_device : public unsp_11_device
+{
+public:
+	// construction/destruction
+	unsp_12_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+
+protected:
+	unsp_12_device(const machine_config& mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock, address_map_constructor internal);
+
+	virtual void execute_fxxx_101_group(uint16_t op) override;
+	virtual void execute_exxx_group(uint16_t op) override;
+	void execute_divq(uint16_t op);
+	bool op_is_divq(const uint16_t op) override;
+
+	virtual std::unique_ptr<util::disasm_interface> create_disassembler() override;
+};
+
+class unsp_20_device : public unsp_12_device
+{
+public:
+	// construction/destruction
+	unsp_20_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+
+protected:
+	unsp_20_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock, address_map_constructor internal);
+
+	virtual std::unique_ptr<util::disasm_interface> create_disassembler() override;
+	virtual void execute_extended_group(uint16_t op) override;
+
+	virtual void device_start() override;
+	virtual void device_reset() override;
+
+private:
+	enum
+	{
+		UNSP20_R8 = 0,
+		UNSP20_R9,
+		UNSP20_R10,
+		UNSP20_R11,
+		UNSP20_R12,
+		UNSP20_R13,
+		UNSP20_R14,
+		UNSP20_R15
+	};
+};
+
+
+
+DECLARE_DEVICE_TYPE(UNSP,    unsp_device)
+DECLARE_DEVICE_TYPE(UNSP_11, unsp_11_device)
+DECLARE_DEVICE_TYPE(UNSP_12, unsp_12_device)
+DECLARE_DEVICE_TYPE(UNSP_20, unsp_20_device)
+
 
 #endif // MAME_CPU_UNSP_UNSP_H

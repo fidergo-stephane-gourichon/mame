@@ -23,7 +23,10 @@ Magic Sticks:
 #include "sound/okim6295.h"
 #include "screen.h"
 #include "speaker.h"
+#include "tilemap.h"
 
+
+namespace {
 
 class powerbal_state : public playmark_state
 {
@@ -39,23 +42,24 @@ public:
 	void powerbal(machine_config &config);
 	void atombjt(machine_config &config);
 
+protected:
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
 
 private:
 	int         m_tilebank;
 	int         m_bg_yoffset;
 
 	TILE_GET_INFO_MEMBER(powerbal_get_bg_tile_info);
-	DECLARE_MACHINE_START(powerbal);
-	DECLARE_MACHINE_RESET(powerbal);
 	DECLARE_VIDEO_START(powerbal);
 	DECLARE_VIDEO_START(atombjt);
 	uint32_t screen_update_powerbal(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	void draw_sprites_powerbal( bitmap_ind16 &bitmap, const rectangle &cliprect );
-	DECLARE_WRITE16_MEMBER(magicstk_coin_eeprom_w);
-	DECLARE_WRITE16_MEMBER(magicstk_bgvideoram_w);
-	DECLARE_WRITE16_MEMBER(tile_banking_w);
-	DECLARE_WRITE16_MEMBER(atombjt_tile_banking_w);
-	DECLARE_WRITE16_MEMBER(oki_banking);
+	void magicstk_coin_eeprom_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void magicstk_bgvideoram_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void tile_banking_w(uint16_t data);
+	void atombjt_tile_banking_w(uint16_t data);
+	void oki_banking(uint16_t data);
 	void magicstk_main_map(address_map &map);
 	void oki_map(address_map &map);
 	void powerbal_main_map(address_map &map);
@@ -63,7 +67,7 @@ private:
 };
 
 
-WRITE16_MEMBER(powerbal_state::magicstk_coin_eeprom_w)
+void powerbal_state::magicstk_coin_eeprom_w(offs_t offset, uint16_t data, uint16_t mem_mask)
 {
 	if (ACCESSING_BITS_0_7)
 	{
@@ -75,13 +79,13 @@ WRITE16_MEMBER(powerbal_state::magicstk_coin_eeprom_w)
 	}
 }
 
-WRITE16_MEMBER(powerbal_state::magicstk_bgvideoram_w)
+void powerbal_state::magicstk_bgvideoram_w(offs_t offset, uint16_t data, uint16_t mem_mask)
 {
 	COMBINE_DATA(&m_videoram1[offset]);
 	m_bg_tilemap->mark_tile_dirty(offset);
 }
 
-WRITE16_MEMBER(powerbal_state::tile_banking_w)
+void powerbal_state::tile_banking_w(uint16_t data)
 {
 	if (((data >> 12) & 0x0f) != m_tilebank)
 	{
@@ -90,7 +94,7 @@ WRITE16_MEMBER(powerbal_state::tile_banking_w)
 	}
 }
 
-WRITE16_MEMBER(powerbal_state::atombjt_tile_banking_w)
+void powerbal_state::atombjt_tile_banking_w(uint16_t data)
 {
 	if ((data & 0x0f) != m_tilebank)
 	{
@@ -99,7 +103,7 @@ WRITE16_MEMBER(powerbal_state::atombjt_tile_banking_w)
 	}
 }
 
-WRITE16_MEMBER(powerbal_state::oki_banking)
+void powerbal_state::oki_banking(uint16_t data)
 {
 	int bank = data & 3;
 	m_okibank->set_entry(bank & (m_oki_numbanks - 1));
@@ -526,7 +530,7 @@ TILE_GET_INFO_MEMBER(powerbal_state::powerbal_get_bg_tile_info)
 	if (m_videoram1[tile_index] & 0x800)
 		code |= 0x8000;
 
-	SET_TILE_INFO_MEMBER(1, code, colr >> 12, 0);
+	tileinfo.set(1, code, colr >> 12, 0);
 }
 
 void powerbal_state::draw_sprites_powerbal(bitmap_ind16 &bitmap, const rectangle &cliprect )
@@ -557,7 +561,7 @@ void powerbal_state::draw_sprites_powerbal(bitmap_ind16 &bitmap, const rectangle
 
 VIDEO_START_MEMBER(powerbal_state,powerbal)
 {
-	m_bg_tilemap = &machine().tilemap().create(*m_gfxdecode, tilemap_get_info_delegate(FUNC(powerbal_state::powerbal_get_bg_tile_info),this), TILEMAP_SCAN_ROWS, 8, 8, 64, 32);
+	m_bg_tilemap = &machine().tilemap().create(*m_gfxdecode, tilemap_get_info_delegate(*this, FUNC(powerbal_state::powerbal_get_bg_tile_info)), TILEMAP_SCAN_ROWS, 8, 8, 64, 32);
 
 	m_xoffset = -20;
 
@@ -566,10 +570,10 @@ VIDEO_START_MEMBER(powerbal_state,powerbal)
 
 VIDEO_START_MEMBER(powerbal_state,atombjt)
 {
-	m_bg_tilemap = &machine().tilemap().create(*m_gfxdecode, tilemap_get_info_delegate(FUNC(powerbal_state::powerbal_get_bg_tile_info),this), TILEMAP_SCAN_COLS, 8, 8, 64, 32);
+	m_bg_tilemap = &machine().tilemap().create(*m_gfxdecode, tilemap_get_info_delegate(*this, FUNC(powerbal_state::powerbal_get_bg_tile_info)), TILEMAP_SCAN_COLS, 8, 8, 64, 32);
 
-	m_xoffset = 32;
-	m_yoffset = 8;
+	m_xoffset = 0x23;
+	m_yoffset = 0x09;
 	m_sprtranspen = 0xf;
 
 	m_bg_tilemap->set_scrollx(0, -64);
@@ -615,12 +619,12 @@ GFXDECODE_END
 
 
 
-MACHINE_START_MEMBER(powerbal_state,powerbal)
+void powerbal_state::machine_start()
 {
 	save_item(NAME(m_tilebank));
 }
 
-MACHINE_RESET_MEMBER(powerbal_state,powerbal)
+void powerbal_state::machine_reset()
 {
 	m_tilebank = 0;
 	configure_oki_banks();
@@ -632,9 +636,6 @@ void powerbal_state::powerbal(machine_config &config)
 	M68000(config, m_maincpu, 12000000);   /* 12 MHz */
 	m_maincpu->set_addrmap(AS_PROGRAM, &powerbal_state::powerbal_main_map);
 	m_maincpu->set_vblank_int("screen", FUNC(powerbal_state::irq2_line_hold));
-
-	MCFG_MACHINE_START_OVERRIDE(powerbal_state,powerbal)
-	MCFG_MACHINE_RESET_OVERRIDE(powerbal_state,powerbal)
 
 	/* video hardware */
 	screen_device &screen(SCREEN(config, "screen", SCREEN_TYPE_RASTER));
@@ -666,9 +667,6 @@ void powerbal_state::magicstk(machine_config &config)
 	m_maincpu->set_vblank_int("screen", FUNC(powerbal_state::irq2_line_hold));
 
 	EEPROM_93C46_16BIT(config, "eeprom").default_value(0);
-
-	MCFG_MACHINE_START_OVERRIDE(powerbal_state,powerbal)
-	MCFG_MACHINE_RESET_OVERRIDE(powerbal_state,powerbal)
 
 	/* video hardware */
 	screen_device &screen(SCREEN(config, "screen", SCREEN_TYPE_RASTER));
@@ -866,6 +864,9 @@ void powerbal_state::init_magicstk()
 	m_yoffset = -5;
 }
 
+} // Anonymous namespace
+
+
 /*************************
 *      Game Drivers      *
 *************************/
@@ -874,4 +875,4 @@ void powerbal_state::init_magicstk()
 GAME( 1994, powerbal, 0,       powerbal, powerbal, powerbal_state, init_powerbal, ROT0,   "Playmark",          "Power Balls",                     MACHINE_SUPPORTS_SAVE )
 GAME( 1995, magicstk, 0,       magicstk, magicstk, powerbal_state, init_magicstk, ROT0,   "Playmark",          "Magic Sticks",                    MACHINE_SUPPORTS_SAVE )
 GAME( 1995, hotminda, hotmind, magicstk, hotminda, powerbal_state, init_magicstk, ROT0,   "Playmark",          "Hot Mind (adjustable prize)",     MACHINE_SUPPORTS_SAVE )
-GAME( 1993, atombjt,  bjtwin,  atombjt,  atombjt,  powerbal_state, empty_init,    ROT270, "bootleg (Kyon K.)", "Atom (bootleg of Bombjack Twin)", MACHINE_NO_COCKTAIL | MACHINE_IMPERFECT_SOUND | MACHINE_IMPERFECT_GRAPHICS | MACHINE_NOT_WORKING ) // some non-trivial mods to the gfx and sound hw wrt nmk16 hw original
+GAME( 1993, atombjt,  bjtwin,  atombjt,  atombjt,  powerbal_state, empty_init,    ROT270, "bootleg (Kyon K.)", "Atom (bootleg of Bombjack Twin)", MACHINE_NO_COCKTAIL | MACHINE_IMPERFECT_SOUND | MACHINE_IMPERFECT_GRAPHICS | MACHINE_SUPPORTS_SAVE ) // some non-trivial mods to the gfx and sound hw wrt nmk16 hw original, does this really support flip screen?

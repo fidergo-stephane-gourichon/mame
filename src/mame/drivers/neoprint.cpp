@@ -69,17 +69,17 @@ protected:
 	virtual void video_start() override;
 
 private:
-	DECLARE_READ8_MEMBER(neoprint_calendar_r);
-	DECLARE_WRITE8_MEMBER(neoprint_calendar_w);
-	DECLARE_READ8_MEMBER(neoprint_unk_r);
-	DECLARE_READ8_MEMBER(neoprint_audio_result_r);
-	DECLARE_WRITE8_MEMBER(audio_cpu_clear_nmi_w);
-	DECLARE_WRITE8_MEMBER(audio_command_w);
-	DECLARE_READ8_MEMBER(audio_command_r);
-	DECLARE_WRITE8_MEMBER(audio_result_w);
-	DECLARE_WRITE16_MEMBER(nprsp_palette_w);
-	DECLARE_WRITE8_MEMBER(nprsp_bank_w);
-	DECLARE_READ16_MEMBER(rom_window_r);
+	uint8_t neoprint_calendar_r();
+	void neoprint_calendar_w(uint8_t data);
+	uint8_t neoprint_unk_r();
+	uint8_t neoprint_audio_result_r();
+	void audio_cpu_clear_nmi_w(uint8_t data);
+	void audio_command_w(offs_t offset, uint8_t data, uint8_t mem_mask = ~0);
+	uint8_t audio_command_r();
+	void audio_result_w(uint8_t data);
+	void nprsp_palette_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void nprsp_bank_w(uint8_t data);
+	uint16_t rom_window_r(offs_t offset);
 	DECLARE_MACHINE_RESET(nprsp);
 	uint32_t screen_update_neoprint(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
 	uint32_t screen_update_nprsp(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
@@ -180,19 +180,19 @@ uint32_t neoprint_state::screen_update_nprsp(screen_device &screen, bitmap_ind16
 }
 
 
-READ8_MEMBER(neoprint_state::neoprint_calendar_r)
+uint8_t neoprint_state::neoprint_calendar_r()
 {
 	return (m_upd4990a->data_out_r() << 7) | (m_upd4990a->tp_r() << 6);
 }
 
-WRITE8_MEMBER(neoprint_state::neoprint_calendar_w)
+void neoprint_state::neoprint_calendar_w(uint8_t data)
 {
 	m_upd4990a->data_in_w(data >> 0 & 1);
 	m_upd4990a->clk_w(data >> 1 & 1);
 	m_upd4990a->stb_w(data >> 2 & 1);
 }
 
-READ8_MEMBER(neoprint_state::neoprint_unk_r)
+uint8_t neoprint_state::neoprint_unk_r()
 {
 	/* ---x ---- tested in irq routine, odd/even field number? */
 	/* ---- xx-- one of these two must be high */
@@ -206,7 +206,7 @@ READ8_MEMBER(neoprint_state::neoprint_unk_r)
 	return m_vblank| 4 | 3;
 }
 
-READ8_MEMBER(neoprint_state::neoprint_audio_result_r)
+uint8_t neoprint_state::neoprint_audio_result_r()
 {
 	return m_audio_result;
 }
@@ -217,14 +217,14 @@ void neoprint_state::audio_cpu_assert_nmi()
 }
 
 
-WRITE8_MEMBER(neoprint_state::audio_cpu_clear_nmi_w)
+void neoprint_state::audio_cpu_clear_nmi_w(uint8_t data)
 {
 	m_audiocpu->set_input_line(INPUT_LINE_NMI, CLEAR_LINE);
 }
 
-WRITE8_MEMBER(neoprint_state::audio_command_w)
+void neoprint_state::audio_command_w(offs_t offset, uint8_t data, uint8_t mem_mask)
 {
-	m_soundlatch->write(space, 0, data);
+	m_soundlatch->write(data);
 
 	audio_cpu_assert_nmi();
 
@@ -235,21 +235,21 @@ WRITE8_MEMBER(neoprint_state::audio_command_w)
 }
 
 
-READ8_MEMBER(neoprint_state::audio_command_r)
+uint8_t neoprint_state::audio_command_r()
 {
-	uint8_t ret = m_soundlatch->read(space, 0);
+	uint8_t ret = m_soundlatch->read();
 
 	//if (LOG_CPU_COMM) logerror(" AUD CPU PC   %04x: audio_command_r %02x\n", m_audiocpu->pc(), ret);
 
 	/* this is a guess */
-	audio_cpu_clear_nmi_w(space, 0, 0);
+	audio_cpu_clear_nmi_w(0);
 
 	return ret;
 }
 
 
 
-WRITE8_MEMBER(neoprint_state::audio_result_w)
+void neoprint_state::audio_result_w(uint8_t data)
 {
 	//if (LOG_CPU_COMM && (m_audio_result != data)) logerror(" AUD CPU PC   %04x: audio_result_w %02x\n", m_audiocpu->pc(), data);
 
@@ -259,7 +259,7 @@ WRITE8_MEMBER(neoprint_state::audio_result_w)
 void neoprint_state::neoprint_map(address_map &map)
 {
 	map(0x000000, 0x07ffff).rom();
-/*  AM_RANGE(0x100000, 0x17ffff) multi-cart or banking, some writes points here if anything lies there too */
+/*  map(0x100000, 0x17ffff) multi-cart or banking, some writes points here if anything lies there too */
 	map(0x200000, 0x20ffff).ram();
 	map(0x300000, 0x30ffff).ram().share("nvram");
 	map(0x400000, 0x43ffff).ram().share("npvidram");
@@ -278,7 +278,7 @@ void neoprint_state::neoprint_map(address_map &map)
 	map(0x70001e, 0x70001f).nopw(); //watchdog
 }
 
-WRITE16_MEMBER(neoprint_state::nprsp_palette_w)
+void neoprint_state::nprsp_palette_w(offs_t offset, uint16_t data, uint16_t mem_mask)
 {
 	uint8_t r,g,b,i;
 
@@ -305,7 +305,7 @@ WRITE16_MEMBER(neoprint_state::nprsp_palette_w)
 	}
 }
 
-WRITE8_MEMBER(neoprint_state::nprsp_bank_w)
+void neoprint_state::nprsp_bank_w(uint8_t data)
 {
 	/* this register seems flip-flop based ... */
 
@@ -318,7 +318,7 @@ WRITE8_MEMBER(neoprint_state::nprsp_bank_w)
 	}
 }
 
-READ16_MEMBER(neoprint_state::rom_window_r)
+uint16_t neoprint_state::rom_window_r(offs_t offset)
 {
 	uint16_t *rom = (uint16_t *)memregion("maincpu")->base();
 
@@ -356,11 +356,11 @@ void neoprint_state::nprsp_map(address_map &map)
 
 void neoprint_state::neoprint_audio_map(address_map &map)
 {
-	map(0x0000, 0x7fff).rom();//AM_ROMBANK(NEOGEO_BANK_AUDIO_CPU_MAIN_BANK)
-//  AM_RANGE(0x8000, 0xbfff) AM_ROMBANK(NEOGEO_BANK_AUDIO_CPU_CART_BANK + 3)
-//  AM_RANGE(0xc000, 0xdfff) AM_ROMBANK(NEOGEO_BANK_AUDIO_CPU_CART_BANK + 2)
-//  AM_RANGE(0xe000, 0xefff) AM_ROMBANK(NEOGEO_BANK_AUDIO_CPU_CART_BANK + 1)
-//  AM_RANGE(0xf000, 0xf7ff) AM_ROMBANK(NEOGEO_BANK_AUDIO_CPU_CART_BANK + 0)
+	map(0x0000, 0x7fff).rom();//.bankr(NEOGEO_BANK_AUDIO_CPU_MAIN_BANK);
+//  map(0x8000, 0xbfff).bankr(NEOGEO_BANK_AUDIO_CPU_CART_BANK + 3);
+//  map(0xc000, 0xdfff).bankr(NEOGEO_BANK_AUDIO_CPU_CART_BANK + 2);
+//  map(0xe000, 0xefff).bankr(NEOGEO_BANK_AUDIO_CPU_CART_BANK + 1);
+//  map(0xf000, 0xf7ff).bankr(NEOGEO_BANK_AUDIO_CPU_CART_BANK + 0);
 	map(0xf800, 0xffff).ram();
 }
 
@@ -374,16 +374,16 @@ void neoprint_state::neoprint_audio_map(address_map &map)
 
 void neoprint_state::neoprint_audio_io_map(address_map &map)
 {
-	/*AM_RANGE(0x00, 0x00) AM_MIRROR(0xff00) AM_READWRITE(audio_command_r, audio_cpu_clear_nmi_w);*/  /* may not and NMI clear */
+	/*map(0x00, 0x00).mirror(0xff00).rw(FUNC(neoprint_state::audio_command_r), FUNC(neoprint_state::audio_cpu_clear_nmi_w));*/  /* may not and NMI clear */
 	map(0x00, 0x00).mirror(0xff00).r(FUNC(neoprint_state::audio_command_r)).nopw();
 	map(0x04, 0x07).mirror(0xff00).rw("ymsnd", FUNC(ym2610_device::read), FUNC(ym2610_device::write));
-//  AM_RANGE(0x08, 0x08) AM_MIRROR(0xff00) /* write - NMI enable / acknowledge? (the data written doesn't matter) */
-//  AM_RANGE(0x08, 0x08) AM_SELECT(0xfff0) AM_READ(audio_cpu_bank_select_f000_f7ff_r)
-//  AM_RANGE(0x09, 0x09) AM_SELECT(0xfff0) AM_READ(audio_cpu_bank_select_e000_efff_r)
-//  AM_RANGE(0x0a, 0x0a) AM_SELECT(0xfff0) AM_READ(audio_cpu_bank_select_c000_dfff_r)
-//  AM_RANGE(0x0b, 0x0b) AM_SELECT(0xfff0) AM_READ(audio_cpu_bank_select_8000_bfff_r)
+//  map(0x08, 0x08).mirror(0xff00); /* write - NMI enable / acknowledge? (the data written doesn't matter) */
+//  map(0x08, 0x08).select(0xfff0).r(FUNC(neoprint_state::audio_cpu_bank_select_f000_f7ff_r));
+//  map(0x09, 0x09).select(0xfff0).r(FUNC(neoprint_state::audio_cpu_bank_select_e000_efff_r));
+//  map(0x0a, 0x0a).select(0xfff0).r(FUNC(neoprint_state::audio_cpu_bank_select_c000_dfff_r));
+//  map(0x0b, 0x0b).select(0xfff0).r(FUNC(neoprint_state::audio_cpu_bank_select_8000_bfff_r));
 	map(0x0c, 0x0c).mirror(0xff00).w(FUNC(neoprint_state::audio_result_w));
-//  AM_RANGE(0x18, 0x18) AM_MIRROR(0xff00) /* write - NMI disable? (the data written doesn't matter) */
+//  map(0x18, 0x18).mirror(0xff00); /* write - NMI disable? (the data written doesn't matter) */
 }
 
 static INPUT_PORTS_START( neoprint )
@@ -916,6 +916,6 @@ GAME( 1997, npusagif,    0,        neoprint,    neoprint, neoprint_state, init_9
 GAME( 1998, 98best44,    0,        neoprint,    neoprint, neoprint_state, init_98best44, ROT0, "SNK", "Neo Print - '98 NeoPri Best 44 (Japan) (T4i 3.07)",             MACHINE_IMPERFECT_SOUND | MACHINE_IMPERFECT_GRAPHICS | MACHINE_NOT_WORKING )
 GAME( 1998, npsprg98,    0,        neoprint,    neoprint, neoprint_state, init_npmillen, ROT0, "SNK", "Neo Print - Spring '98 (T4i 3.07)",                             MACHINE_IMPERFECT_SOUND | MACHINE_IMPERFECT_GRAPHICS | MACHINE_NOT_WORKING )
 GAME( 1999, npmillen,    0,        neoprint,    neoprint, neoprint_state, init_npmillen, ROT0, "SNK", "Neo Print - Millennium Multi Shot Edition (World) (T4i 3.07)",  MACHINE_IMPERFECT_SOUND | MACHINE_IMPERFECT_GRAPHICS | MACHINE_NOT_WORKING )
-GAME( 1999, npfpit,      0,        neoprint,    neoprint, neoprint_state, init_npmillen, ROT0, "SNK", "Neo Print - Fuyo Pri Iitoko Tori (Japan) (T4i 3.07)",           MACHINE_IMPERFECT_SOUND | MACHINE_IMPERFECT_GRAPHICS | MACHINE_NOT_WORKING )
+GAME( 1999, npfpit,      0,        neoprint,    neoprint, neoprint_state, init_npmillen, ROT0, "SNK", "Neo Print - Fuyu Pri Iitoko-dori (Japan) (T4i 3.07)",           MACHINE_IMPERFECT_SOUND | MACHINE_IMPERFECT_GRAPHICS | MACHINE_NOT_WORKING )
 GAME( 1996, nprsp,       0,        nprsp,       neoprint, neoprint_state, init_nprsp,    ROT0, "SNK", "NeopriSP Retro Collection (Japan)",                             MACHINE_IMPERFECT_SOUND | MACHINE_IMPERFECT_GRAPHICS | MACHINE_NOT_WORKING )
 GAME( 1996, npssr2,      0,        nprsp,       neoprint, neoprint_state, init_nprsp,    ROT0, "SNK", "Neo Print Special: Sekai Ryokou 2 (Japan)",                     MACHINE_IMPERFECT_SOUND | MACHINE_IMPERFECT_GRAPHICS | MACHINE_NOT_WORKING )

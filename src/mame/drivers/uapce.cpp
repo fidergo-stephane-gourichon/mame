@@ -33,6 +33,24 @@
  -x1 Victory Run standardd Hucard
  -x1 Plexiglass control panel overlay (used)
 
+In the August 1989 issue of Vending Times magazine:
+https://archive.org/details/VendingTimesVOL29NO10August1989Clearscan/page/n69
+https://archive.org/details/VendingTimesVOL29NO10August1989Clearscan/page/n99
+there was a list of all of the available UA produced HU-Cards about to be released.
+- Legendary Axe
+- Victory Run
+- Keith Courage in the Alpha Zones
+- World Class Baseball
+- Power Golf
+- Blazing Lazers
+- Dungeon Explorer
+- Alien Crush
+- China Warrior
+- Military Madness
+- JJ and Jeff
+and said that six to ten more new game cards would be available by the end of the year.
+It also shows game marquees for Victory Run and Power League.
+
 In the February 1990 issue of Video Games & Computer Entertainment magazine, there was a list of
 all of the available UA produced Hu-Cards (at the current time of the article was published).
 The article mentions that the UA Hu-Cards were not compatible with the TG-16 gaming console.
@@ -116,9 +134,9 @@ public:
 
 private:
 	uint8_t m_jamma_if_control_latch;
-	DECLARE_WRITE8_MEMBER(jamma_if_control_latch_w);
-	DECLARE_READ8_MEMBER(jamma_if_control_latch_r);
-	DECLARE_READ8_MEMBER(jamma_if_read_dsw);
+	void jamma_if_control_latch_w(uint8_t data);
+	uint8_t jamma_if_control_latch_r();
+	uint8_t jamma_if_read_dsw(offs_t offset);
 	virtual uint8_t joy_read() override;
 	virtual void machine_reset() override;
 	required_device<discrete_device> m_discrete;
@@ -138,14 +156,14 @@ static DISCRETE_SOUND_START(uapce_discrete)
 DISCRETE_SOUND_END
 
 
-WRITE8_MEMBER(uapce_state::jamma_if_control_latch_w)
+void uapce_state::jamma_if_control_latch_w(uint8_t data)
 {
 	uint8_t diff = data ^ m_jamma_if_control_latch;
 	m_jamma_if_control_latch = data;
 
 /*  D7 : Controls relay which connects the PCE R-AUDIO output to the common audio path.
     (1= Relay closed, 0= Relay open) */
-	machine().sound().system_enable( (data >> 7) & 1 );
+	machine().sound().system_mute(!BIT(data, 7));
 
 /* D6 : Output to JAMMA connector KEY pin. Connected to /RESET on the PCE backplane connector.
     (1= /RESET not asserted, 0= /RESET asserted) */
@@ -181,12 +199,12 @@ WRITE8_MEMBER(uapce_state::jamma_if_control_latch_w)
 /* D0 : Not latched. */
 }
 
-READ8_MEMBER(uapce_state::jamma_if_control_latch_r)
+uint8_t uapce_state::jamma_if_control_latch_r()
 {
 	return m_jamma_if_control_latch & 0x08;
 }
 
-READ8_MEMBER(uapce_state::jamma_if_read_dsw)
+uint8_t uapce_state::jamma_if_read_dsw(offs_t offset)
 {
 	uint8_t dsw_val;
 
@@ -317,7 +335,7 @@ void uapce_state::uapce(machine_config &config)
 	z80_device &sub(Z80(config, "sub", 1400000));
 	sub.set_addrmap(AS_PROGRAM, &uapce_state::z80_map);
 
-	config.m_minimum_quantum = attotime::from_hz(60);
+	config.set_maximum_quantum(attotime::from_hz(60));
 
 	/* video hardware */
 	screen_device &screen(SCREEN(config, "screen", SCREEN_TYPE_RASTER));

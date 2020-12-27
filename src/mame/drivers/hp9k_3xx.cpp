@@ -102,12 +102,12 @@ private:
 
 	void set_bus_error(uint32_t address, bool write, uint16_t mem_mask);
 
-	DECLARE_READ16_MEMBER(buserror16_r);
-	DECLARE_WRITE16_MEMBER(buserror16_w);
-	DECLARE_READ32_MEMBER(buserror_r);
-	DECLARE_WRITE32_MEMBER(buserror_w);
+	uint16_t buserror16_r(offs_t offset, uint16_t mem_mask = ~0);
+	void buserror16_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	uint32_t buserror_r(offs_t offset, uint32_t mem_mask = ~0);
+	void buserror_w(offs_t offset, uint32_t data, uint32_t mem_mask = ~0);
 
-	DECLARE_WRITE16_MEMBER(led_w);
+	void led_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
 
 	void hp9k310_map(address_map &map);
 	void hp9k320_map(address_map &map);
@@ -122,13 +122,13 @@ private:
 	void add_dio16_bus(machine_config &mconfig);
 	void add_dio32_bus(machine_config &mconfig);
 
-	DECLARE_WRITE_LINE_MEMBER(dio_irq1_w) { m_maincpu->set_input_line_and_vector(M68K_IRQ_1, state, M68K_INT_ACK_AUTOVECTOR); };
-	DECLARE_WRITE_LINE_MEMBER(dio_irq2_w) { m_maincpu->set_input_line_and_vector(M68K_IRQ_2, state, M68K_INT_ACK_AUTOVECTOR); };
-	DECLARE_WRITE_LINE_MEMBER(dio_irq3_w) { m_maincpu->set_input_line_and_vector(M68K_IRQ_3, state, M68K_INT_ACK_AUTOVECTOR); };
-	DECLARE_WRITE_LINE_MEMBER(dio_irq4_w) { m_maincpu->set_input_line_and_vector(M68K_IRQ_4, state, M68K_INT_ACK_AUTOVECTOR); };
-	DECLARE_WRITE_LINE_MEMBER(dio_irq5_w) { m_maincpu->set_input_line_and_vector(M68K_IRQ_5, state, M68K_INT_ACK_AUTOVECTOR); };
-	DECLARE_WRITE_LINE_MEMBER(dio_irq6_w) { m_maincpu->set_input_line_and_vector(M68K_IRQ_6, state, M68K_INT_ACK_AUTOVECTOR); };
-	DECLARE_WRITE_LINE_MEMBER(dio_irq7_w) { m_maincpu->set_input_line_and_vector(M68K_IRQ_7, state, M68K_INT_ACK_AUTOVECTOR); };
+	DECLARE_WRITE_LINE_MEMBER(dio_irq1_w) { m_maincpu->set_input_line(M68K_IRQ_1, state); };
+	DECLARE_WRITE_LINE_MEMBER(dio_irq2_w) { m_maincpu->set_input_line(M68K_IRQ_2, state); };
+	DECLARE_WRITE_LINE_MEMBER(dio_irq3_w) { m_maincpu->set_input_line(M68K_IRQ_3, state); };
+	DECLARE_WRITE_LINE_MEMBER(dio_irq4_w) { m_maincpu->set_input_line(M68K_IRQ_4, state); };
+	DECLARE_WRITE_LINE_MEMBER(dio_irq5_w) { m_maincpu->set_input_line(M68K_IRQ_5, state); };
+	DECLARE_WRITE_LINE_MEMBER(dio_irq6_w) { m_maincpu->set_input_line(M68K_IRQ_6, state); };
+	DECLARE_WRITE_LINE_MEMBER(dio_irq7_w) { m_maincpu->set_input_line(M68K_IRQ_7, state); };
 
 	bool m_bus_error;
 	emu_timer *m_bus_error_timer;
@@ -224,7 +224,7 @@ void hp9k3xx_state::machine_reset()
 {
 	auto *dio = subdevice<bus::hp_dio::dio16_device>("diobus");
 	if (dio)
-		m_maincpu->set_reset_callback(write_line_delegate(FUNC(bus::hp_dio::dio16_device::reset_in), dio));
+		m_maincpu->set_reset_callback(*dio, FUNC(bus::hp_dio::dio16_device::reset_in));
 }
 
 void hp9k3xx_state::machine_start()
@@ -238,7 +238,7 @@ TIMER_CALLBACK_MEMBER(hp9k3xx_state::bus_error_timeout)
 	m_bus_error = false;
 }
 
-WRITE16_MEMBER(hp9k3xx_state::led_w)
+void hp9k3xx_state::led_w(offs_t offset, uint16_t data, uint16_t mem_mask)
 {
 	if (!(mem_mask & 0xff))
 	   return;
@@ -297,27 +297,27 @@ void hp9k3xx_state::set_bus_error(uint32_t address, bool rw, uint16_t mem_mask)
 	m_bus_error_timer->adjust(m_maincpu->cycles_to_attotime(16)); // let rmw cycles complete
 }
 
-READ16_MEMBER(hp9k3xx_state::buserror16_r)
+uint16_t hp9k3xx_state::buserror16_r(offs_t offset, uint16_t mem_mask)
 {
 	if (!machine().side_effects_disabled())
 		set_bus_error((offset << 1) & 0xFFFFFF, true, mem_mask);
 	return 0xffff;
 }
 
-WRITE16_MEMBER(hp9k3xx_state::buserror16_w)
+void hp9k3xx_state::buserror16_w(offs_t offset, uint16_t data, uint16_t mem_mask)
 {
 	if (!machine().side_effects_disabled())
 		set_bus_error((offset << 1) & 0xFFFFFF, false, mem_mask);
 }
 
-READ32_MEMBER(hp9k3xx_state::buserror_r)
+uint32_t hp9k3xx_state::buserror_r(offs_t offset, uint32_t mem_mask)
 {
 	if (!machine().side_effects_disabled())
 		set_bus_error(offset << 2, false, mem_mask);
 	return 0xffffffff;
 }
 
-WRITE32_MEMBER(hp9k3xx_state::buserror_w)
+void hp9k3xx_state::buserror_w(offs_t offset, uint32_t data, uint32_t mem_mask)
 {
 	if (!machine().side_effects_disabled())
 		set_bus_error(offset << 2, false, mem_mask);
@@ -331,6 +331,8 @@ void hp9k3xx_state::hp9k300(machine_config &config)
 	ptm.irq_callback().set_inputline("maincpu", M68K_IRQ_6);
 
 	SOFTWARE_LIST(config, "flop_list").set_original("hp9k3xx_flop");
+	SOFTWARE_LIST(config, "cdrom_list").set_original("hp9k3xx_cdrom");
+	SOFTWARE_LIST(config, "hdd_list").set_original("hp9k3xx_hdd");
 	config.set_default_layout(layout_hp9k_3xx);
 }
 

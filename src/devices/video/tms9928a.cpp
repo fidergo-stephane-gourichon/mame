@@ -78,7 +78,7 @@ void tms9928a_device::device_config_complete()
 		return;
 
 	if (!screen().has_screen_update())
-		screen().set_screen_update(screen_update_rgb32_delegate(FUNC(tms9928a_device::screen_update), this));
+		screen().set_screen_update(*this, FUNC(tms9928a_device::screen_update));
 
 	if (!screen().refresh_attoseconds())
 	{
@@ -166,10 +166,10 @@ void tms9928a_device::write(offs_t offset, uint8_t data)
 
 u8 tms9928a_device::vram_read()
 {
-	// prevent debugger from changing the address base
-	if (machine().side_effects_disabled()) return 0;
-
 	uint8_t data = m_ReadAhead;
+
+	// prevent debugger from changing the address base
+	if (machine().side_effects_disabled()) return data;
 
 	m_ReadAhead = m_vram_space->read_byte(m_Addr);
 	m_Addr = (m_Addr + 1) & (m_vram_size - 1);
@@ -193,10 +193,10 @@ void tms9928a_device::vram_write(u8 data)
 
 u8 tms9928a_device::register_read()
 {
-	// prevent debugger from changing the internal state
-	if (machine().side_effects_disabled()) return 0;
-
 	uint8_t data = m_StatusReg;
+
+	// prevent debugger from changing the internal state
+	if (machine().side_effects_disabled()) return data;
 
 	m_StatusReg = m_FifthSprite;
 	check_interrupt();
@@ -365,7 +365,7 @@ void tms9928a_device::device_timer(emu_timer &timer, device_timer_id id, int par
 	int raw_vpos = screen().vpos();
 	int vpos = raw_vpos * m_vertical_size / screen().height();
 	uint16_t BackColour = m_Regs[7] & 15;
-	uint32_t *p = &m_tmpbmp.pix32(vpos);
+	uint32_t *p = &m_tmpbmp.pix(vpos);
 
 	int y = vpos - m_top_border;
 
@@ -740,6 +740,8 @@ void tms9928a_device::device_start()
 	m_line_timer = timer_alloc(TIMER_LINE);
 	m_gromclk_timer = timer_alloc(GROMCLK);
 
+	m_INT = 1; // force initial update
+
 	set_palette();
 
 	save_item(NAME(m_Regs[0]));
@@ -784,9 +786,9 @@ void tms9928a_device::device_reset()
 	m_patternmask = 0x3fff;
 	m_Addr = 0;
 	m_ReadAhead = 0;
-	m_INT = 0;
 	m_latch = 0;
 	m_mode = 0;
+	check_interrupt();
 
 	m_line_timer->adjust( screen().time_until_pos( 0, HORZ_DISPLAY_START ) );
 

@@ -669,7 +669,7 @@ WRITE_LINE_MEMBER(calomega_state::update_aciabaud_scale)
 	m_aciabaud->set_clock_scale((double)dsw2 / 128);
 }
 
-READ8_MEMBER(calomega_state::s903_mux_port_r)
+uint8_t calomega_state::s903_mux_port_r()
 {
 	switch( m_s903_mux_data & 0xf0 )    /* bits 4-7 */
 	{
@@ -682,14 +682,14 @@ READ8_MEMBER(calomega_state::s903_mux_port_r)
 	return m_frq->read();   /* bit7 used for 50/60 Hz selector */
 }
 
-WRITE8_MEMBER(calomega_state::s903_mux_w)
+void calomega_state::s903_mux_w(uint8_t data)
 {
 	m_s903_mux_data = data ^ 0xff;  /* inverted */
 }
 
 
 
-READ8_MEMBER(calomega_state::s905_mux_port_r)
+uint8_t calomega_state::s905_mux_port_r()
 {
 	switch( m_s905_mux_data & 0x0f )    /* bits 0-3 */
 	{
@@ -702,7 +702,7 @@ READ8_MEMBER(calomega_state::s905_mux_port_r)
 	return m_frq->read();   /* bit6 used for 50/60 Hz selector */
 }
 
-WRITE8_MEMBER(calomega_state::s905_mux_w)
+void calomega_state::s905_mux_w(uint8_t data)
 {
 	m_s905_mux_data = data ^ 0xff;  /* inverted */
 }
@@ -710,25 +710,25 @@ WRITE8_MEMBER(calomega_state::s905_mux_w)
 
 /********* 906III PIAs debug *********/
 
-READ8_MEMBER(calomega_state::pia0_ain_r)
+uint8_t calomega_state::pia0_ain_r()
 {
 	/* Valid input port. Each polled value is stored at $0538 */
 	logerror("PIA0: Port A in\n");
 	return m_in0->read();
 }
 
-READ8_MEMBER(calomega_state::pia0_bin_r)
+uint8_t calomega_state::pia0_bin_r()
 {
 	logerror("PIA0: Port B in\n");
 	return 0xff;
 }
 
-WRITE8_MEMBER(calomega_state::pia0_aout_w)
+void calomega_state::pia0_aout_w(uint8_t data)
 {
 	logerror("PIA0: Port A out: %02X\n", data);
 }
 
-WRITE8_MEMBER(calomega_state::pia0_bout_w)
+void calomega_state::pia0_bout_w(uint8_t data)
 {
 	logerror("PIA0: Port B out: %02X\n", data);
 }
@@ -741,24 +741,24 @@ WRITE_LINE_MEMBER(calomega_state::pia0_ca2_w)
 
 
 
-READ8_MEMBER(calomega_state::pia1_ain_r)
+uint8_t calomega_state::pia1_ain_r()
 {
 	logerror("PIA1: Port A in\n");
 	return 0xff;
 }
 
-READ8_MEMBER(calomega_state::pia1_bin_r)
+uint8_t calomega_state::pia1_bin_r()
 {
 	logerror("PIA1: Port B in\n");
 	return 0xff;
 }
 
-WRITE8_MEMBER(calomega_state::pia1_aout_w)
+void calomega_state::pia1_aout_w(uint8_t data)
 {
 	logerror("PIA1: Port A out: %02X\n", data);
 }
 
-WRITE8_MEMBER(calomega_state::pia1_bout_w)
+void calomega_state::pia1_bout_w(uint8_t data)
 {
 	logerror("PIA1: Port B out: %02X\n", data);
 }
@@ -784,7 +784,7 @@ WRITE8_MEMBER(calomega_state::pia1_bout_w)
     0xff    0x7b    = Take
 
 */
-WRITE8_MEMBER(calomega_state::lamps_903a_w)
+void calomega_state::lamps_903a_w(uint8_t data)
 {
 	/* First 5 bits of PIA0 port B */
 	m_lamps[0] = BIT(~data, 0);  /* L1 (Hold 1) */
@@ -794,7 +794,7 @@ WRITE8_MEMBER(calomega_state::lamps_903a_w)
 	m_lamps[4] = BIT(~data, 4);  /* L5 (Hold 5) */
 }
 
-WRITE8_MEMBER(calomega_state::lamps_903b_w)
+void calomega_state::lamps_903b_w(uint8_t data)
 {
 	/* First 4 bits of PIA1 port A */
 	m_lamps[5] = BIT(~data, 0);  /* L6 (Cancel) */
@@ -803,7 +803,7 @@ WRITE8_MEMBER(calomega_state::lamps_903b_w)
 	m_lamps[8] = BIT(~data, 3);  /* L9 (Door?) */
 }
 
-WRITE8_MEMBER(calomega_state::lamps_905_w)
+void calomega_state::lamps_905_w(uint8_t data)
 {
 	/* Whole 8 bits of PIA0 port B */
 	m_lamps[0] = BIT(~data, 0);  /* L1 (Hold 1) */
@@ -2570,7 +2570,8 @@ WRITE_LINE_MEMBER(calomega_state::write_acia_clock)
 *                Machine Drivers                 *
 *************************************************/
 
-MACHINE_CONFIG_START(calomega_state::sys903)
+void calomega_state::sys903(machine_config &config)
+{
 	/* basic machine hardware */
 	M6502(config, m_maincpu, CPU_CLOCK);   /* confirmed */
 	m_maincpu->set_addrmap(AS_PROGRAM, &calomega_state::sys903_map);
@@ -2588,13 +2589,12 @@ MACHINE_CONFIG_START(calomega_state::sys903)
 	m_pia[1]->writepb_handler().set(FUNC(calomega_state::s903_mux_w));
 
 	/* video hardware */
-	MCFG_SCREEN_ADD("screen", RASTER)
-	MCFG_SCREEN_REFRESH_RATE(60)
-	MCFG_SCREEN_VBLANK_TIME(ATTOSECONDS_IN_USEC(0))
-	MCFG_SCREEN_SIZE((39+1)*8, (31+1)*8)                  /* Taken from MC6845 init, registers 00 & 04. Normally programmed with (value-1) */
-	MCFG_SCREEN_VISIBLE_AREA(0*8, 32*8-1, 0*8, 31*8-1)    /* Taken from MC6845 init, registers 01 & 06 */
-	MCFG_SCREEN_UPDATE_DRIVER(calomega_state, screen_update_calomega)
-	MCFG_SCREEN_PALETTE(m_palette)
+	screen_device &screen(SCREEN(config, "screen", SCREEN_TYPE_RASTER));
+	screen.set_refresh_hz(60);
+	screen.set_vblank_time(ATTOSECONDS_IN_USEC(0));
+	screen.set_size((39+1)*8, (31+1)*8);                  /* Taken from MC6845 init, registers 00 & 04. Normally programmed with (value-1) */
+	screen.set_visarea(0*8, 32*8-1, 0*8, 31*8-1);    /* Taken from MC6845 init, registers 01 & 06 */
+	screen.set_screen_update(FUNC(calomega_state::screen_update_calomega));
 
 	GFXDECODE(config, m_gfxdecode, m_palette, gfx_calomega);
 	PALETTE(config, m_palette, FUNC(calomega_state::calomega_palette), 256); // or 128? is the upper half of the PROMs really valid colors?
@@ -2616,7 +2616,7 @@ MACHINE_CONFIG_START(calomega_state::sys903)
 
 	clock_device &aciabaud(CLOCK(config, "aciabaud", UART_CLOCK));
 	aciabaud.signal_handler().set(FUNC(calomega_state::write_acia_clock));
-MACHINE_CONFIG_END
+}
 
 
 void calomega_state::s903mod(machine_config &config)

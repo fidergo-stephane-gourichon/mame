@@ -105,8 +105,8 @@ public:
 	void set_vme_slot(const char *tag, const char *slottag);
 	void update_vme_chains(uint32_t slot_nbr);
 
-	virtual DECLARE_READ8_MEMBER(read8);
-	virtual DECLARE_WRITE8_MEMBER(write8);
+	virtual uint8_t read8(offs_t offset);
+	virtual void write8(offs_t offset, uint8_t data);
 
 protected:
 	vme_slot_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock);
@@ -183,6 +183,7 @@ public:
 	};
 	void install_device(vme_amod_t amod, offs_t start, offs_t end, read8_delegate rhandler, write8_delegate whandler, uint32_t mask);
 	void install_device(vme_amod_t amod, offs_t start, offs_t end, read8sm_delegate rhandler, write8sm_delegate whandler, uint32_t mask);
+	void install_device(vme_amod_t amod, offs_t start, offs_t end, read8smo_delegate rhandler, write8smo_delegate whandler, uint32_t mask);
 	//  void install_device(vme_amod_t amod, offs_t start, offs_t end, read8_delegate rhandler, write8_delegate whandler);
 	void install_device(vme_amod_t amod, offs_t start, offs_t end, read16_delegate rhandler, write16_delegate whandler, uint32_t mask);
 	void install_device(vme_amod_t amod, offs_t start, offs_t end, read32_delegate rhandler, write32_delegate whandler, uint32_t mask);
@@ -212,7 +213,7 @@ protected:
 // device type definition
 DECLARE_DEVICE_TYPE(VME_SLOT, vme_slot_device)
 
-class device_vme_card_interface : public device_slot_card_interface
+class device_vme_card_interface : public device_interface
 {
 	template <class ElementType> friend class simple_list;
 public:
@@ -223,8 +224,8 @@ public:
 	virtual ~device_vme_card_interface();
 	void set_vme_device();
 
-	virtual DECLARE_READ8_MEMBER(read8);
-	virtual DECLARE_WRITE8_MEMBER(write8);
+	virtual uint8_t read8(offs_t offset);
+	virtual void write8(offs_t offset, uint8_t data);
 
 	device_vme_card_interface(const machine_config &mconfig, device_t &device);
 

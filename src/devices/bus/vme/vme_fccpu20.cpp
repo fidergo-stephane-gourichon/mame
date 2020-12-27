@@ -252,12 +252,17 @@ static DEVICE_INPUT_DEFAULTS_START( terminal )
 	DEVICE_INPUT_DEFAULTS( "RS232_STOPBITS", 0xff, RS232_STOPBITS_2 )
 DEVICE_INPUT_DEFAULTS_END
 
+void vme_fccpu20_device::cpu_space_map(address_map &map)
+{
+	map(0xfffffff2, 0xffffffff).lr16(NAME([this](offs_t offset) -> u16 { return m_bim->iack(offset+1); }));
+}
+
 void vme_fccpu20_device::device_add_mconfig(machine_config &config)
 {
 	/* basic machine hardware */
 	M68020(config, m_maincpu, CLOCK50 / 3); /* Crytstal verified from picture HCI */
 	m_maincpu->set_addrmap(AS_PROGRAM, &vme_fccpu20_device::cpu20_mem);
-	m_maincpu->set_irq_acknowledge_callback("bim", FUNC(bim68153_device::iack));
+	m_maincpu->set_addrmap(m68000_base_device::AS_CPU_SPACE, &vme_fccpu20_device::cpu_space_map);
 
 	/* PIT Parallel Interface and Timer device, assumed strapped for on board clock */
 	PIT68230(config, m_pit, CLOCK32 / 4); /* Crystal not verified */
@@ -454,9 +459,9 @@ void vme_fccpu20_device::device_start()
 #if 0 // TODO: Setup VME access handlers for shared memory area
 	uint32_t base = 0xFFFF5000;
 	m_vme->install_device(base + 0, base + 1, // Channel B - Data
-							 read8_delegate(FUNC(z80sio_device::db_r),  subdevice<z80sio_device>("pit")), write8_delegate(FUNC(z80sio_device::db_w), subdevice<z80sio_device>("pit")), 0x00ff);
+			read8_delegate(*subdevice<z80sio_device>("pit"), FUNC(z80sio_device::db_r)), write8_delegate(*subdevice<z80sio_device>("pit"), FUNC(z80sio_device::db_w)), 0x00ff);
 	m_vme->install_device(base + 2, base + 3, // Channel B - Control
-							 read8_delegate(FUNC(z80sio_device::cb_r),  subdevice<z80sio_device>("pit")), write8_delegate(FUNC(z80sio_device::cb_w), subdevice<z80sio_device>("pit")), 0x00ff);
+			read8_delegate(*subdevice<z80sio_device>("pit"), FUNC(z80sio_device::cb_r)), write8_delegate(*subdevice<z80sio_device>("pit"), FUNC(z80sio_device::cb_w)), 0x00ff);
 #endif
 }
 
@@ -491,13 +496,13 @@ void vme_fccpu20_device::device_timer (emu_timer &timer, device_timer_id id, int
 }
 
 /* Boot vector handler, the PCB hardwires the first 8 bytes from 0xff800000 to 0x0 at reset*/
-READ32_MEMBER (vme_fccpu20_device::bootvect_r)
+uint32_t vme_fccpu20_device::bootvect_r(offs_t offset)
 {
 	LOG("%s\n", FUNCNAME);
 	return m_sysrom[offset];
 }
 
-WRITE32_MEMBER (vme_fccpu20_device::bootvect_w)
+void vme_fccpu20_device::bootvect_w(offs_t offset, uint32_t data, uint32_t mem_mask)
 {
 	LOG("%s\n", FUNCNAME);
 	m_sysram[offset % ARRAY_LENGTH(m_sysram)] &= ~mem_mask;
@@ -553,14 +558,14 @@ void vme_fccpu20_device::update_irq_to_maincpu()
 #define BR8N38400  0x08
 #define FORCEBUG   0x30
 
-READ8_MEMBER (vme_fccpu20_device::pita_r)
+uint8_t vme_fccpu20_device::pita_r()
 {
 	LOG("%s\n", FUNCNAME);
 	return FORCEBUG | BR7N9600;
 }
 
 /* Enabling/Disabling of VME IRQ 1-7 */
-READ8_MEMBER (vme_fccpu20_device::pitb_r)
+uint8_t vme_fccpu20_device::pitb_r()
 {
 	LOG("%s\n", FUNCNAME);
 	return 0xff;
@@ -568,7 +573,7 @@ READ8_MEMBER (vme_fccpu20_device::pitb_r)
 
 /* VME board ID bit and bus release software settings (output) (ROR, RAT, RATAR, RATBCLR, RORAT, RORRAT */
 /* Bit 4 is bus available */
-READ8_MEMBER (vme_fccpu20_device::pitc_r)
+uint8_t vme_fccpu20_device::pitc_r()
 {
 	uint8_t board_id = 0;
 

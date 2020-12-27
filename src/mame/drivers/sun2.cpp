@@ -123,6 +123,7 @@ How the architecture works:
 #include "cpu/m68000/m68000.h"
 #include "machine/ram.h"
 #include "machine/am9513.h"
+#include "machine/i82586.h"
 #include "machine/mm58167.h"
 #include "machine/z80scc.h"
 #include "machine/bankdev.h"
@@ -155,6 +156,7 @@ public:
 		, m_type1space(*this, "type1")
 		, m_type2space(*this, "type2")
 		, m_type3space(*this, "type3")
+		, m_edlc(*this, "edlc")
 		, m_bw2_vram(*this, "bw2_vram")
 	{ }
 
@@ -166,17 +168,25 @@ private:
 	required_memory_region m_rom, m_idprom;
 	required_device<ram_device> m_ram;
 	required_device<address_map_bank_device> m_type0space, m_type1space, m_type2space, m_type3space;
+	optional_device<i82586_device> m_edlc;
 	required_shared_ptr<uint16_t> m_bw2_vram;
 
 	virtual void machine_start() override;
 	virtual void machine_reset() override;
 
-	DECLARE_READ16_MEMBER( tl_mmu_r );
-	DECLARE_WRITE16_MEMBER( tl_mmu_w );
-	DECLARE_READ16_MEMBER( video_ctrl_r );
-	DECLARE_WRITE16_MEMBER( video_ctrl_w );
-	DECLARE_READ16_MEMBER( ram_r );
-	DECLARE_WRITE16_MEMBER( ram_w );
+	uint16_t mmu_r(offs_t offset, uint16_t mem_mask = ~0);
+	void mmu_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	uint16_t tl_mmu_r(uint8_t fc, offs_t offset, uint16_t mem_mask);
+	void tl_mmu_w(uint8_t fc, offs_t offset, uint16_t data, uint16_t mem_mask);
+	uint16_t video_ctrl_r();
+	void video_ctrl_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	uint16_t ram_r(offs_t offset);
+	void ram_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	uint8_t ethernet_r();
+	void ethernet_w(uint8_t data);
+	DECLARE_WRITE_LINE_MEMBER(ethernet_int_w);
+	uint16_t edlc_mmu_r(offs_t offset, uint16_t mem_mask);
+	void edlc_mmu_w(offs_t offset, uint16_t data, uint16_t mem_mask);
 
 	uint32_t bw2_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 
@@ -185,6 +195,7 @@ private:
 	void mbustype2space_map(address_map &map);
 	void mbustype3space_map(address_map &map);
 	void sun2_mem(address_map &map);
+	void edlc_mem(address_map &map);
 	void vmetype0space_map(address_map &map);
 	void vmetype1space_map(address_map &map);
 	void vmetype2space_map(address_map &map);
@@ -198,23 +209,27 @@ private:
 	uint32_t m_pagemap[4097];
 	uint32_t m_ram_size, m_ram_size_words;
 	uint16_t m_bw2_ctrl;
+	uint8_t m_ethernet_status;
 };
 
-READ16_MEMBER( sun2_state::ram_r )
+uint16_t sun2_state::ram_r(offs_t offset)
 {
 	if (offset < m_ram_size_words) return m_ram_ptr[offset];
 	return 0xffff;
 }
 
-WRITE16_MEMBER( sun2_state::ram_w )
+void sun2_state::ram_w(offs_t offset, uint16_t data, uint16_t mem_mask)
 {
 	if (offset < m_ram_size_words) COMBINE_DATA(&m_ram_ptr[offset]);
 }
 
-READ16_MEMBER( sun2_state::tl_mmu_r )
+uint16_t sun2_state::mmu_r(offs_t offset, uint16_t mem_mask)
 {
-	uint8_t fc = m_maincpu->get_fc();
+	return tl_mmu_r(m_maincpu->get_fc(), offset, mem_mask);
+}
 
+uint16_t sun2_state::tl_mmu_r(uint8_t fc, offs_t offset, uint16_t mem_mask)
+{
 	if ((fc == 3) && !machine().side_effects_disabled())
 	{
 		if (offset & 0x4)   // set for CPU space
@@ -345,10 +360,13 @@ READ16_MEMBER( sun2_state::tl_mmu_r )
 	return 0xffff;
 }
 
-WRITE16_MEMBER( sun2_state::tl_mmu_w )
+void sun2_state::mmu_w(offs_t offset, uint16_t data, uint16_t mem_mask)
 {
-	uint8_t fc = m_maincpu->get_fc();
+	tl_mmu_w(m_maincpu->get_fc(), offset, data, mem_mask);
+}
 
+void sun2_state::tl_mmu_w(uint8_t fc, offs_t offset, uint16_t data, uint16_t mem_mask)
+{
 	//printf("sun2: Write %04x (FC %d, mask %04x, PC=%x) to %08x\n", data, fc, mem_mask, m_maincpu->pc(), offset<<1);
 
 	if (fc == 3)
@@ -471,20 +489,68 @@ WRITE16_MEMBER( sun2_state::tl_mmu_w )
 }
 
 // BW2 video control
-READ16_MEMBER( sun2_state::video_ctrl_r )
+uint16_t sun2_state::video_ctrl_r()
 {
 	return m_bw2_ctrl;
 }
 
-WRITE16_MEMBER( sun2_state::video_ctrl_w )
+void sun2_state::video_ctrl_w(offs_t offset, uint16_t data, uint16_t mem_mask)
 {
 	//printf("sun2: BW2: %x to video_ctrl\n", data);
 	COMBINE_DATA(&m_bw2_ctrl);
 }
 
+// 82586 Ethernet Data Link Controller interface
+uint8_t sun2_state::ethernet_r()
+{
+	return m_ethernet_status;
+}
+
+void sun2_state::ethernet_w(uint8_t data)
+{
+	m_edlc->reset_w(!BIT(data, 7));
+	m_edlc->set_loopback(!BIT(data, 6)); // LBC on MB502
+	m_edlc->ca(BIT(data, 5));
+
+	m_ethernet_status = (data & 0xf0) | (m_ethernet_status & 0x0f);
+	m_maincpu->set_input_line(M68K_IRQ_3, BIT(m_ethernet_status, 0) && BIT(m_ethernet_status, 4) ? ASSERT_LINE : CLEAR_LINE);
+}
+
+WRITE_LINE_MEMBER(sun2_state::ethernet_int_w)
+{
+	if (state)
+	{
+		m_ethernet_status |= 0x01;
+		if (BIT(m_ethernet_status, 4))
+			m_maincpu->set_input_line(M68K_IRQ_3, ASSERT_LINE);
+	}
+	else
+	{
+		m_ethernet_status &= 0xfe;
+		if (BIT(m_ethernet_status, 4))
+			m_maincpu->set_input_line(M68K_IRQ_3, CLEAR_LINE);
+	}
+}
+
+uint16_t sun2_state::edlc_mmu_r(offs_t offset, uint16_t mem_mask)
+{
+	uint16_t result = tl_mmu_r(M68K_FC_SUPERVISOR_DATA, offset, (mem_mask >> 8) | (mem_mask << 8));
+	return (result >> 8) | (result << 8);
+}
+
+void sun2_state::edlc_mmu_w(offs_t offset, uint16_t data, uint16_t mem_mask)
+{
+	tl_mmu_w(M68K_FC_SUPERVISOR_DATA, offset, (data >> 8) | (data << 8), (mem_mask >> 8) | (mem_mask << 8));
+}
+
 void sun2_state::sun2_mem(address_map &map)
 {
-	map(0x000000, 0xffffff).rw(FUNC(sun2_state::tl_mmu_r), FUNC(sun2_state::tl_mmu_w));
+	map(0x000000, 0xffffff).rw(FUNC(sun2_state::mmu_r), FUNC(sun2_state::mmu_w));
+}
+
+void sun2_state::edlc_mem(address_map &map)
+{
+	map(0x000000, 0xffffff).rw(FUNC(sun2_state::edlc_mmu_r), FUNC(sun2_state::edlc_mmu_w));
 }
 
 // VME memory spaces
@@ -500,12 +566,13 @@ void sun2_state::vmetype1space_map(address_map &map)
 	map(0x000000, 0x01ffff).ram().share("bw2_vram");
 	map(0x020000, 0x020001).rw(FUNC(sun2_state::video_ctrl_r), FUNC(sun2_state::video_ctrl_w));
 	map(0x7f0000, 0x7f07ff).rom().region("bootprom", 0);    // uses MMU loophole to read 32k from a 2k window
-	// 7f0800-7f0fff: Ethernet interface
+	map(0x7f0800, 0x7f0800).mirror(0x7fe).rw(FUNC(sun2_state::ethernet_r), FUNC(sun2_state::ethernet_w)).cswidth(16);
 	// 7f1000-7f17ff: AM9518 encryption processor
-	//AM_RANGE(0x7f1800, 0x7f1801) AM_DEVREADWRITE8(SCC1_TAG, z80scc_device, cb_r, cb_w, 0xff00)
-	//AM_RANGE(0x7f1802, 0x7f1803) AM_DEVREADWRITE8(SCC1_TAG, z80scc_device, db_r, db_w, 0xff00)
-	//AM_RANGE(0x7f1804, 0x7f1805) AM_DEVREADWRITE8(SCC1_TAG, z80scc_device, ca_r, ca_w, 0xff00)
-	//AM_RANGE(0x7f1806, 0x7f1807) AM_DEVREADWRITE8(SCC1_TAG, z80scc_device, da_r, da_w, 0xff00)
+	//map(0x7f1800, 0x7f1800).rw(SCC1_TAG, FUNC(z80scc_device::cb_r), FUNC(z80scc_device::cb_w));
+	//map(0x7f1802, 0x7f1802).rw(SCC1_TAG, FUNC(z80scc_device::db_r), FUNC(z80scc_device::db_w));
+	map(0x7f1804, 0x7f1805).nopr();
+	//map(0x7f1804, 0x7f1804).rw(SCC1_TAG, FUNC(z80scc_device::ca_r), FUNC(z80scc_device::ca_w));
+	//map(0x7f1806, 0x7f1806).rw(SCC1_TAG, FUNC(z80scc_device::da_r), FUNC(z80scc_device::da_w));
 	map(0x7f2000, 0x7f2000).rw(SCC2_TAG, FUNC(z80scc_device::cb_r), FUNC(z80scc_device::cb_w));
 	map(0x7f2002, 0x7f2002).rw(SCC2_TAG, FUNC(z80scc_device::db_r), FUNC(z80scc_device::db_w));
 	map(0x7f2004, 0x7f2004).rw(SCC2_TAG, FUNC(z80scc_device::ca_r), FUNC(z80scc_device::ca_w));
@@ -529,7 +596,7 @@ void sun2_state::mbustype0space_map(address_map &map)
 {
 	map(0x000000, 0x3fffff).rw(FUNC(sun2_state::ram_r), FUNC(sun2_state::ram_w));
 	// 7f80000-7f807ff: Keyboard/mouse SCC8530
-	//AM_RANGE(0x7f8000, 0x7f8007) AM_DEVREADWRITE8(SCC1_TAG, z80scc_device, ba_cd_inv_r, ba_cd_inv_w, 0xff00)
+	//map(0x7f8000, 0x7f8007).rw(SCC1_TAG, FUNC(z80scc_device::ab_dc_r), FUNC(z80scc_device::ab_dc_w)).umask16(0xff00);
 	map(0x700000, 0x71ffff).ram().share("bw2_vram");
 	map(0x781800, 0x781801).rw(FUNC(sun2_state::video_ctrl_r), FUNC(sun2_state::video_ctrl_w));
 }
@@ -540,7 +607,7 @@ void sun2_state::mbustype1space_map(address_map &map)
 	map(0x000000, 0x0007ff).rom().region("bootprom", 0);    // uses MMU loophole to read 32k from a 2k window
 	// 001000-0017ff: AM9518 encryption processor
 	// 001800-001fff: Parallel port
-	map(0x002000, 0x0027ff).rw(SCC2_TAG, FUNC(z80scc_device::ba_cd_inv_r), FUNC(z80scc_device::ba_cd_inv_w)).umask16(0xff00);
+	map(0x002000, 0x0027ff).rw(SCC2_TAG, FUNC(z80scc_device::ab_dc_r), FUNC(z80scc_device::ab_dc_w)).umask16(0xff00);
 	map(0x002800, 0x002803).mirror(0x7fc).rw("timer", FUNC(am9513_device::read16), FUNC(am9513_device::write16));
 	map(0x003800, 0x00383f).mirror(0x7c0).rw("rtc", FUNC(mm58167_device::read), FUNC(mm58167_device::write)).umask16(0xff00); // 12 wait states generated by PAL16R6 (U415)
 }
@@ -557,29 +624,26 @@ void sun2_state::mbustype3space_map(address_map &map)
 
 uint32_t sun2_state::bw2_update(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect)
 {
-	uint32_t *scanline;
-	int x, y;
-	uint8_t pixels;
 	static const uint32_t palette[2] = { 0, 0xffffff };
-	uint8_t *m_vram = (uint8_t *)m_bw2_vram.target();
+	uint8_t const *const m_vram = (uint8_t *)m_bw2_vram.target();
 
 	if (!(m_bw2_ctrl & 0x8000)) return 0;
 
-	for (y = 0; y < 900; y++)
+	for (int y = 0; y < 900; y++)
 	{
-		scanline = &bitmap.pix32(y);
-		for (x = 0; x < 1152/8; x++)
+		uint32_t *scanline = &bitmap.pix(y);
+		for (int x = 0; x < 1152/8; x++)
 		{
-			pixels = m_vram[(y * (1152/8)) + (BYTE_XOR_BE(x))];
+			uint8_t const pixels = m_vram[(y * (1152/8)) + (BYTE_XOR_BE(x))];
 
-			*scanline++ = palette[(pixels>>7)&1];
-			*scanline++ = palette[(pixels>>6)&1];
-			*scanline++ = palette[(pixels>>5)&1];
-			*scanline++ = palette[(pixels>>4)&1];
-			*scanline++ = palette[(pixels>>3)&1];
-			*scanline++ = palette[(pixels>>2)&1];
-			*scanline++ = palette[(pixels>>1)&1];
-			*scanline++ = palette[(pixels&1)];
+			*scanline++ = palette[BIT(pixels, 7)];
+			*scanline++ = palette[BIT(pixels, 6)];
+			*scanline++ = palette[BIT(pixels, 5)];
+			*scanline++ = palette[BIT(pixels, 4)];
+			*scanline++ = palette[BIT(pixels, 3)];
+			*scanline++ = palette[BIT(pixels, 2)];
+			*scanline++ = palette[BIT(pixels, 1)];
+			*scanline++ = palette[BIT(pixels, 0)];
 		}
 	}
 
@@ -597,6 +661,8 @@ void sun2_state::machine_start()
 	m_ram_ptr = (uint16_t *)m_ram->pointer();
 	m_ram_size = m_ram->size();
 	m_ram_size_words = m_ram_size >> 1;
+
+	m_ethernet_status = 0;
 }
 
 void sun2_state::machine_reset()
@@ -608,7 +674,8 @@ void sun2_state::machine_reset()
 	memset(m_segmap, 0, sizeof(m_segmap));
 	memset(m_pagemap, 0, sizeof(m_pagemap));
 
-	m_maincpu->reset();
+	if (m_edlc.found())
+		ethernet_w(0);
 }
 
 void sun2_state::sun2vme(machine_config &config)
@@ -633,9 +700,11 @@ void sun2_state::sun2vme(machine_config &config)
 
 	screen_device &bwtwo(SCREEN(config, "bwtwo", SCREEN_TYPE_RASTER));
 	bwtwo.set_screen_update(FUNC(sun2_state::bw2_update));
-	bwtwo.set_size(1152,900);
-	bwtwo.set_visarea(0, 1152-1, 0, 900-1);
-	bwtwo.set_refresh_hz(72);
+	bwtwo.set_raw(100_MHz_XTAL, 1600, 0, 1152, 937, 0, 900);
+
+	I82586(config, m_edlc, 16_MHz_XTAL / 2);
+	m_edlc->set_addrmap(0, &sun2_state::edlc_mem);
+	m_edlc->out_irq_cb().set(FUNC(sun2_state::ethernet_int_w));
 
 	am9513a_device &timer(AM9513A(config, "timer", 19.6608_MHz_XTAL / 4));
 	timer.fout_cb().set("timer", FUNC(am9513_device::gate1_w));
@@ -686,9 +755,8 @@ void sun2_state::sun2mbus(machine_config &config)
 
 	screen_device &bwtwo(SCREEN(config, "bwtwo", SCREEN_TYPE_RASTER));
 	bwtwo.set_screen_update(FUNC(sun2_state::bw2_update));
-	bwtwo.set_size(1152,900);
-	bwtwo.set_visarea(0, 1152-1, 0, 900-1);
-	bwtwo.set_refresh_hz(72);
+	bwtwo.set_raw(100_MHz_XTAL, 1600, 0, 1152, 937, 0, 900);
+	//bwtwo.set_raw(100_MHz_XTAL, 1600, 0, 1024, 1061, 0, 1024);
 
 	am9513a_device &timer(AM9513A(config, "timer", 39.3216_MHz_XTAL / 8));
 	timer.fout_cb().set("timer", FUNC(am9513_device::gate1_w));

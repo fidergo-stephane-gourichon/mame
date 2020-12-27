@@ -37,14 +37,14 @@ public:
 
 	void rgum(machine_config &config);
 
-	DECLARE_CUSTOM_INPUT_MEMBER(rgum_heartbeat_r);
+	DECLARE_READ_LINE_MEMBER(heartbeat_r);
 
 private:
 	required_shared_ptr<uint8_t> m_vram;
 	required_shared_ptr<uint8_t> m_cram;
 	uint8_t m_hbeat;
 	virtual void video_start() override;
-	uint32_t screen_update_royalgum(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect);
+	uint32_t screen_update_royalgum(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect);
 	required_device<cpu_device> m_maincpu;
 	required_device<gfxdecode_device> m_gfxdecode;
 	required_device<palette_device> m_palette;
@@ -56,7 +56,7 @@ void rgum_state::video_start()
 {
 }
 
-uint32_t rgum_state::screen_update_royalgum(screen_device &screen, bitmap_ind16 &bitmap, const rectangle &cliprect)
+uint32_t rgum_state::screen_update_royalgum(screen_device &screen, bitmap_rgb32 &bitmap, const rectangle &cliprect)
 {
 	int x,y,count;
 	gfx_element *gfx = m_gfxdecode->gfx(0);
@@ -100,7 +100,7 @@ void rgum_state::rgum_map(address_map &map)
 }
 
 
-CUSTOM_INPUT_MEMBER(rgum_state::rgum_heartbeat_r)
+READ_LINE_MEMBER(rgum_state::heartbeat_r)
 {
 	m_hbeat ^= 1;
 
@@ -125,7 +125,7 @@ static INPUT_PORTS_START( rgum )
 	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
 	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_CUSTOM ) PORT_CUSTOM_MEMBER(DEVICE_SELF, rgum_state,rgum_heartbeat_r, nullptr)
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_CUSTOM ) PORT_READ_LINE_MEMBER(rgum_state, heartbeat_r)
 	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
 	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
@@ -258,7 +258,6 @@ void rgum_state::rgum(machine_config &config)
 	screen.set_size(256, 256);
 	screen.set_visarea(0, 256-1, 0, 256-1);
 	screen.set_screen_update(FUNC(rgum_state::screen_update_royalgum));
-	screen.set_palette(m_palette);
 
 	mc6845_device &crtc(MC6845(config, "crtc", 24000000/16));   /* unknown clock & type, hand tuned to get ~50 fps (?) */
 	crtc.set_screen("screen");

@@ -66,7 +66,7 @@ Stephh's notes (based on the games M6809 code and some tests) :
  *
  *************************************/
 
-READ8_MEMBER(mikie_state::mikie_sh_timer_r)
+uint8_t mikie_state::mikie_sh_timer_r()
 {
 	int clock = m_audiocpu->total_cycles() / MIKIE_TIMER_RATE;
 
@@ -78,7 +78,7 @@ WRITE_LINE_MEMBER(mikie_state::sh_irqtrigger_w)
 	if (state)
 	{
 		// setting bit 0 low then high triggers IRQ on the sound CPU
-		m_audiocpu->set_input_line_and_vector(0, HOLD_LINE, 0xff);
+		m_audiocpu->set_input_line_and_vector(0, HOLD_LINE, 0xff); // Z80
 	}
 }
 

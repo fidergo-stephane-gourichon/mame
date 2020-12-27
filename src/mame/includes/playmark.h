@@ -10,6 +10,7 @@
 #include "machine/ticket.h"
 #include "cpu/pic16c5x/pic16c5x.h"
 #include "emupal.h"
+#include "tilemap.h"
 
 class playmark_state : public driver_device
 {
@@ -45,6 +46,9 @@ public:
 	void init_pic_decode();
 
 protected:
+	virtual void machine_start() override;
+	virtual void machine_reset() override;
+
 	/* memory pointers */
 	optional_shared_ptr<uint16_t> m_bgvideoram;
 	required_shared_ptr<uint16_t> m_videoram1;
@@ -83,28 +87,28 @@ protected:
 	required_device<okim6295_device> m_oki;
 	optional_memory_bank m_okibank;
 	optional_device<eeprom_serial_93cxx_device> m_eeprom;
-	DECLARE_WRITE16_MEMBER(coinctrl_w);
-	DECLARE_WRITE16_MEMBER(wbeachvl_coin_eeprom_w);
-	DECLARE_WRITE16_MEMBER(hotmind_coin_eeprom_w);
-	DECLARE_WRITE16_MEMBER(luckboomh_dispenser_w);
-	DECLARE_WRITE16_MEMBER(hrdtimes_coin_w);
-	DECLARE_WRITE16_MEMBER(playmark_snd_command_w);
-	DECLARE_READ8_MEMBER(playmark_snd_command_r);
-	DECLARE_READ8_MEMBER(playmark_snd_flag_r);
-	DECLARE_WRITE8_MEMBER(playmark_oki_w);
-	DECLARE_WRITE8_MEMBER(playmark_snd_control_w);
-	DECLARE_WRITE8_MEMBER(hrdtimes_snd_control_w);
-	DECLARE_WRITE16_MEMBER(wbeachvl_txvideoram_w);
-	DECLARE_WRITE16_MEMBER(wbeachvl_fgvideoram_w);
-	DECLARE_WRITE16_MEMBER(wbeachvl_bgvideoram_w);
-	DECLARE_WRITE16_MEMBER(hrdtimes_txvideoram_w);
-	DECLARE_WRITE16_MEMBER(hrdtimes_fgvideoram_w);
-	DECLARE_WRITE16_MEMBER(hrdtimes_bgvideoram_w);
-	DECLARE_WRITE16_MEMBER(bigtwin_scroll_w);
-	DECLARE_WRITE16_MEMBER(wbeachvl_scroll_w);
-	DECLARE_WRITE16_MEMBER(excelsr_scroll_w);
-	DECLARE_WRITE16_MEMBER(hrdtimes_scroll_w);
-	DECLARE_WRITE8_MEMBER(playmark_oki_banking_w);
+	void coinctrl_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void wbeachvl_coin_eeprom_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void hotmind_coin_eeprom_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void luckboomh_dispenser_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void hrdtimes_coin_w(uint16_t data);
+	void playmark_snd_command_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	uint8_t playmark_snd_command_r();
+	uint8_t playmark_snd_flag_r();
+	void playmark_oki_w(uint8_t data);
+	void playmark_snd_control_w(uint8_t data);
+	void hrdtimes_snd_control_w(uint8_t data);
+	void wbeachvl_txvideoram_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void wbeachvl_fgvideoram_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void wbeachvl_bgvideoram_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void hrdtimes_txvideoram_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void hrdtimes_fgvideoram_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void hrdtimes_bgvideoram_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void bigtwin_scroll_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void wbeachvl_scroll_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void excelsr_scroll_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void hrdtimes_scroll_w(offs_t offset, uint16_t data, uint16_t mem_mask = ~0);
+	void playmark_oki_banking_w(uint8_t data);
 	TILE_GET_INFO_MEMBER(bigtwin_get_tx_tile_info);
 	TILE_GET_INFO_MEMBER(bigtwin_get_fg_tile_info);
 	TILE_GET_INFO_MEMBER(wbeachvl_get_tx_tile_info);
@@ -114,8 +118,6 @@ protected:
 	TILE_GET_INFO_MEMBER(bigtwinb_get_tx_tile_info);
 	TILE_GET_INFO_MEMBER(hrdtimes_get_fg_tile_info);
 	TILE_GET_INFO_MEMBER(hrdtimes_get_bg_tile_info);
-	DECLARE_MACHINE_START(playmark);
-	DECLARE_MACHINE_RESET(playmark);
 	DECLARE_VIDEO_START(bigtwin);
 	DECLARE_VIDEO_START(bigtwinb);
 	DECLARE_VIDEO_START(wbeachvl);

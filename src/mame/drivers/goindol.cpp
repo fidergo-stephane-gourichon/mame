@@ -29,7 +29,7 @@ Notes:
 #include "speaker.h"
 
 
-WRITE8_MEMBER(goindol_state::goindol_bankswitch_w)
+void goindol_state::goindol_bankswitch_w(uint8_t data)
 {
 	membank("bank1")->set_entry(data & 0x03);
 
@@ -44,7 +44,7 @@ WRITE8_MEMBER(goindol_state::goindol_bankswitch_w)
 
 
 
-READ8_MEMBER(goindol_state::prot_f422_r)
+uint8_t goindol_state::prot_f422_r()
 {
 	/* bit 7 = vblank? */
 	m_prot_toggle ^= 0x80;
@@ -53,7 +53,7 @@ READ8_MEMBER(goindol_state::prot_f422_r)
 }
 
 
-WRITE8_MEMBER(goindol_state::prot_fc44_w)
+void goindol_state::prot_fc44_w(uint8_t data)
 {
 	logerror("%04x: prot_fc44_w(%02x)\n", m_maincpu->pc(), data);
 	m_ram[0x0419] = 0x5b;
@@ -61,19 +61,19 @@ WRITE8_MEMBER(goindol_state::prot_fc44_w)
 	m_ram[0x041b] = 0x6d;
 }
 
-WRITE8_MEMBER(goindol_state::prot_fd99_w)
+void goindol_state::prot_fd99_w(uint8_t data)
 {
 	logerror("%04x: prot_fd99_w(%02x)\n", m_maincpu->pc(), data);
 	m_ram[0x0421] = 0x3f;
 }
 
-WRITE8_MEMBER(goindol_state::prot_fc66_w)
+void goindol_state::prot_fc66_w(uint8_t data)
 {
 	logerror("%04x: prot_fc66_w(%02x)\n", m_maincpu->pc(), data);
 	m_ram[0x0423] = 0x06;
 }
 
-WRITE8_MEMBER(goindol_state::prot_fcb0_w)
+void goindol_state::prot_fcb0_w(uint8_t data)
 {
 	logerror("%04x: prot_fcb0_w(%02x)\n", m_maincpu->pc(), data);
 	m_ram[0x0425] = 0x06;
@@ -89,9 +89,9 @@ void goindol_state::goindol_map(address_map &map)
 	map(0xc800, 0xc800).nopr().w("soundlatch", FUNC(generic_latch_8_device::write)); // watchdog?
 	map(0xc810, 0xc810).w(FUNC(goindol_state::goindol_bankswitch_w));
 	map(0xc820, 0xc820).portr("DIAL");
-	map(0xc820, 0xd820).writeonly().share("fg_scrolly");
+	map(0xc820, 0xc820).writeonly().share("fg_scrolly");
 	map(0xc830, 0xc830).portr("P1");
-	map(0xc830, 0xd830).writeonly().share("fg_scrollx");
+	map(0xc830, 0xc830).writeonly().share("fg_scrollx");
 	map(0xc834, 0xc834).portr("P2");
 	map(0xd000, 0xd03f).ram().share("spriteram");
 	map(0xd040, 0xd7ff).ram();

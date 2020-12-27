@@ -8,7 +8,7 @@
 
 #include "machine/nscsi_bus.h"
 
-class aic6250_device : public nscsi_device
+class aic6250_device : public nscsi_device, public nscsi_slot_card_interface
 {
 public:
 	aic6250_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
@@ -25,8 +25,8 @@ public:
 
 	DECLARE_WRITE_LINE_MEMBER(back_w);
 
-	DECLARE_READ8_MEMBER(read);
-	DECLARE_WRITE8_MEMBER(write);
+	u8 read(address_space &space, offs_t offset);
+	void write(offs_t offset, u8 data);
 
 	u8 dma_r();
 	u16 dma16_r();
@@ -34,6 +34,8 @@ public:
 	void dma16_w(u16 data);
 
 protected:
+	aic6250_device(const machine_config &mconfig, device_type type, const char *tag, device_t *owner, uint32_t clock);
+
 	// standard device_interface overrides
 	virtual void device_start() override;
 	virtual void device_reset() override;
@@ -277,6 +279,13 @@ private:
 	util::fifo <u8, 8> m_fifo;
 };
 
+class aic6251a_device : public aic6250_device
+{
+public:
+	aic6251a_device(const machine_config &mconfig, const char *tag, device_t *owner, uint32_t clock);
+};
+
 DECLARE_DEVICE_TYPE(AIC6250, aic6250_device)
+DECLARE_DEVICE_TYPE(AIC6251A, aic6251a_device)
 
 #endif // MAME_MACHINE_AIC6250_H
