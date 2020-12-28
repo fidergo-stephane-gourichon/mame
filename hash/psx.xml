@@ -38382,7 +38382,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="kids station - soreike! anpanman 2 (japan) [slps-03197]" sha1="94a2ecfa790a4bca617a5bae8bd3c35211b5f087" status="baddump"/>
+				<disk name="kids station - soreike anpanman 2 (japan) [slps-03197]" sha1="94a2ecfa790a4bca617a5bae8bd3c35211b5f087" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -38453,7 +38453,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="saru! get you! (japan) [scps-10091]" sha1="c956fd585b246e72e204f4710d2b60245228d560" status="baddump"/>
+				<disk name="saru get you (japan) [scps-10091]" sha1="c956fd585b246e72e204f4710d2b60245228d560" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -39407,7 +39407,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="susume! kaizoku (japan) [slps-01737]" sha1="3230f9a74272d8c28b1bdf7e7ed94c4cb1e559d9" status="baddump"/>
+				<disk name="susume kaizoku (japan) [slps-01737]" sha1="3230f9a74272d8c28b1bdf7e7ed94c4cb1e559d9" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -39691,7 +39691,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="blam! machinehead (japan) [slps-00798]" sha1="d437c29a088689d63bbcba44cf37f4e34db6b838" status="baddump"/>
+				<disk name="blam machinehead (japan) [slps-00798]" sha1="d437c29a088689d63bbcba44cf37f4e34db6b838" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -39735,7 +39735,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="block kuzushi kowashite help! (japan) [slps-03042]" sha1="5f76b744b0c6a5e1050426f962b51bcc47226ce7" status="baddump"/>
+				<disk name="block kuzushi kowashite help (japan) [slps-03042]" sha1="5f76b744b0c6a5e1050426f962b51bcc47226ce7" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -40331,7 +40331,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="buckle up! (japan) [slps-01105]" sha1="ab733b71a18341a1977134463cea2a8f856aa17c" status="baddump"/>
+				<disk name="buckle up (japan) [slps-01105]" sha1="ab733b71a18341a1977134463cea2a8f856aa17c" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -40455,7 +40455,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="calcolo! (japan) [slps-01071]" sha1="26a2f748579d6d05d27322bf60d8facd027f8696" status="baddump"/>
+				<disk name="calcolo (japan) [slps-01071]" sha1="26a2f748579d6d05d27322bf60d8facd027f8696" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -40689,7 +40689,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="choro-q wonderful! (japan) [slps-02205]" sha1="daf3e93d1f331b0692b319184838183f6400d86e" status="baddump"/>
+				<disk name="choro-q wonderful (japan) [slps-02205]" sha1="daf3e93d1f331b0692b319184838183f6400d86e" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -41403,17 +41403,17 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom1" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="dancing blade - katteni momotenshi! (japan) (disc 1) [slpm-86100]" sha1="56154bf21d90180c4a8498d93f4c3bcaa50a5a8b" status="baddump"/>
+				<disk name="dancing blade - katteni momotenshi (japan) (disc 1) [slpm-86100]" sha1="56154bf21d90180c4a8498d93f4c3bcaa50a5a8b" status="baddump"/>
 			</diskarea>
 		</part>
 		<part name="cdrom2" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="dancing blade - katteni momotenshi! (japan) (disc 2) [slpm-86101]" sha1="6b94f4da43f7a01a7e4196c70dc951663b5f68f0" status="baddump"/>
+				<disk name="dancing blade - katteni momotenshi (japan) (disc 2) [slpm-86101]" sha1="6b94f4da43f7a01a7e4196c70dc951663b5f68f0" status="baddump"/>
 			</diskarea>
 		</part>
 		<part name="cdrom3" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="dancing blade - katteni momotenshi! (japan) (disc 3) [slpm-86102]" sha1="e7a484e51ac7fc9496d08d0bde65c57d9ec4c399" status="baddump"/>
+				<disk name="dancing blade - katteni momotenshi (japan) (disc 3) [slpm-86102]" sha1="e7a484e51ac7fc9496d08d0bde65c57d9ec4c399" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -41811,7 +41811,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="densha de go! nagoya railroad - let's go by train (japan) [slpm-86424]" sha1="84e8ee5d760fa12429b4457cbb53affe785f21d4" status="baddump"/>
+				<disk name="densha de go nagoya railroad - let's go by train (japan) [slpm-86424]" sha1="84e8ee5d760fa12429b4457cbb53affe785f21d4" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -41941,12 +41941,12 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom1" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="dezaemon kids! (japan) (disc 1) [slps-01503]" sha1="318ff9d74c47c2291986e426709b95f6e3709a60" status="baddump"/>
+				<disk name="dezaemon kids (japan) (disc 1) [slps-01503]" sha1="318ff9d74c47c2291986e426709b95f6e3709a60" status="baddump"/>
 			</diskarea>
 		</part>
 		<part name="cdrom2" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="dezaemon kids! (japan) (disc 2) [slps-01504]" sha1="5d48db16e3e4313abac5a862bfef01c782133375" status="baddump"/>
+				<disk name="dezaemon kids (japan) (disc 2) [slps-01504]" sha1="5d48db16e3e4313abac5a862bfef01c782133375" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -42138,7 +42138,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="docchi mecha! (japan) [scps-10129]" sha1="069ed3aeedb16150e1e161eb8c36fff51b3408c8" status="baddump"/>
+				<disk name="docchi mecha (japan) [scps-10129]" sha1="069ed3aeedb16150e1e161eb8c36fff51b3408c8" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -42159,7 +42159,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="dodge de ball! (japan) [slps-01362]" sha1="c2d5573bd647b403b59a6511f647ebafc46519fe" status="baddump"/>
+				<disk name="dodge de ball (japan) [slps-01362]" sha1="c2d5573bd647b403b59a6511f647ebafc46519fe" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -42369,7 +42369,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="doraemon 2 - sos! otogi no kuni (japan) [slps-00628]" sha1="98ecccb1cdb9f8fd2d68709490ceef69490cc433" status="baddump"/>
+				<disk name="doraemon 2 - sos otogi no kuni (japan) [slps-00628]" sha1="98ecccb1cdb9f8fd2d68709490ceef69490cc433" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -42494,7 +42494,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="drug store, the - matsumoto kiyoshi de okaimono! (japan) [slps-01516]" sha1="34ce0e5cf400106ff1c59bb9cbd0fe08228e4517" status="baddump"/>
+				<disk name="drug store, the - matsumoto kiyoshi de okaimono (japan) [slps-01516]" sha1="34ce0e5cf400106ff1c59bb9cbd0fe08228e4517" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -42971,7 +42971,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="engacho! (japan) [slps-02263]" sha1="8d1a0d1c02cbd63d637f89b0fa53e40a5afd34ac" status="baddump"/>
+				<disk name="engacho (japan) [slps-02263]" sha1="8d1a0d1c02cbd63d637f89b0fa53e40a5afd34ac" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -43868,7 +43868,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="fun! fun! ping (japan) [slps-02306]" sha1="0cfa311c6f0ddec333502591ce64bbf843c97fca" status="baddump"/>
+				<disk name="fun fun ping (japan) [slps-02306]" sha1="0cfa311c6f0ddec333502591ce64bbf843c97fca" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -44001,7 +44001,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="gakkou no kowai uwasa - hanakosan ga kita!! (japan) [slps-00078]" sha1="b1020fd2bf86f6e2f2f2cc54715c69d940f9010c" status="baddump"/>
+				<disk name="gakkou no kowai uwasa - hanakosan ga kita (japan) [slps-00078]" sha1="b1020fd2bf86f6e2f2f2cc54715c69d940f9010c" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -44022,7 +44022,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="gakkou wo tsukurou!! 2 (japan) [slps-01660]" sha1="fcb99635ef112fc2ac559c4c9d141043b6d675bb" status="baddump"/>
+				<disk name="gakkou wo tsukurou 2 (japan) [slps-01660]" sha1="fcb99635ef112fc2ac559c4c9d141043b6d675bb" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -44043,7 +44043,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="gakkou wo tsukurou!! kouchou sensei monogatari (japan) [slps-02998]" sha1="2be10b2b2fa43fe39b606dbd47a382c66d8fca8d" status="baddump"/>
+				<disk name="gakkou wo tsukurou kouchou sensei monogatari (japan) [slps-02998]" sha1="2be10b2b2fa43fe39b606dbd47a382c66d8fca8d" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -44195,7 +44195,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="gambler jiko chuushinka ippatsu shoubu! tokyo mahjong land (japan) [slps-02509]" sha1="2849d82b70c50defd4b090c63719485a3256bdc3" status="baddump"/>
+				<disk name="gambler jiko chuushinka ippatsu shoubu tokyo mahjong land (japan) [slps-02509]" sha1="2849d82b70c50defd4b090c63719485a3256bdc3" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -44317,7 +44317,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="gunbare! game tengoku 2 (japan) [slps-01322]" sha1="6878ba9f94341ba668fd651d365d3fe73c479d18" status="baddump"/>
+				<disk name="gunbare game tengoku 2 (japan) [slps-01322]" sha1="6878ba9f94341ba668fd651d365d3fe73c479d18" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -44534,7 +44534,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="gegege no kitarou - gyakushuu! youkai daikessen (japan) [slpm-87286]" sha1="d58191f697928fee53baccfd57b7a69ee99abc0d" status="baddump"/>
+				<disk name="gegege no kitarou - gyakushuu youkai daikessen (japan) [slpm-87286]" sha1="d58191f697928fee53baccfd57b7a69ee99abc0d" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -44890,7 +44890,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="goo! goo! soundy (japan) [slpm-86250]" sha1="efbad579e127a65379b191a2643d1aa3dac032b6" status="baddump"/>
+				<disk name="goo goo soundy (japan) [slpm-86250]" sha1="efbad579e127a65379b191a2643d1aa3dac032b6" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -45706,7 +45706,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="haunted junction - seitokai badge wo oe! (japan) [slps-00668]" sha1="847d2d9449ea9f88d6b44d1742309a8cba8e6b0f" status="baddump"/>
+				<disk name="haunted junction - seitokai badge wo oe (japan) [slps-00668]" sha1="847d2d9449ea9f88d6b44d1742309a8cba8e6b0f" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -45727,7 +45727,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="heiwa parlor! pro dolphin ring special (japan) [slps-02689]" sha1="57e36bc9e3fc98d596426c1a86f323f0d4432bb7" status="baddump"/>
+				<disk name="heiwa parlor pro dolphin ring special (japan) [slps-02689]" sha1="57e36bc9e3fc98d596426c1a86f323f0d4432bb7" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -45748,7 +45748,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="heiwa parlor! pro lupin sansei special (japan) [slps-02541]" sha1="22fd75baae932b72397b9f99c5c2cb2409ae4f8c" status="baddump"/>
+				<disk name="heiwa parlor pro lupin sansei special (japan) [slps-02541]" sha1="22fd75baae932b72397b9f99c5c2cb2409ae4f8c" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -45811,7 +45811,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="heiwa parlor! pro tsunatori monogatari special (japan) [slps-03370]" sha1="5435cb1a6189d5e583279a5db57c99a0283ef9a3" status="baddump"/>
+				<disk name="heiwa parlor pro tsunatori monogatari special (japan) [slps-03370]" sha1="5435cb1a6189d5e583279a5db57c99a0283ef9a3" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -45832,7 +45832,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="eggs of steel - hello charlie!! (japan) [slpm-86083]" sha1="30236e05afda91a1eba9680cb4ecadd8efcd6457" status="baddump"/>
+				<disk name="eggs of steel - hello charlie (japan) [slpm-86083]" sha1="30236e05afda91a1eba9680cb4ecadd8efcd6457" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -46255,7 +46255,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="hooockey!! (japan) [slpm-86488]" sha1="71c0af97da516f43ab8c156ca35435b5a1793db4" status="baddump"/>
+				<disk name="hooockey (japan) [slpm-86488]" sha1="71c0af97da516f43ab8c156ca35435b5a1793db4" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -46528,7 +46528,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="minna atsumare! igo kyoushitsu (japan) [slps-03554]" sha1="967f7baeecac40ce03994e39f5a7ad8e458672f1" status="baddump"/>
+				<disk name="minna atsumare igo kyoushitsu (japan) [slps-03554]" sha1="967f7baeecac40ce03994e39f5a7ad8e458672f1" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -46785,7 +46785,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="jet de go! let's go by airliner (japan) (v1.0)" sha1="a9efaaaa061ad1c1b06a3e33a9546e6104cc55b4" status="baddump"/>
+				<disk name="jet de go let's go by airliner (japan) (v1.0)" sha1="a9efaaaa061ad1c1b06a3e33a9546e6104cc55b4" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -47473,7 +47473,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="kenki ippatsu! crane master ni narou! (japan) [slps-02831]" sha1="50c254b40a133784f10e3610e166d0087f3c9f30" status="baddump"/>
+				<disk name="kenki ippatsu crane master ni narou (japan) [slps-02831]" sha1="50c254b40a133784f10e3610e166d0087f3c9f30" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -47628,7 +47628,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="muscle ranking - kinniku banzuke vol.2 - aratanaru genkai he no chousen! (japan) [slpm-86457]" sha1="e64631e2c00519dbfa176a58295dfc778ba4747c" status="baddump"/>
+				<disk name="muscle ranking - kinniku banzuke vol.2 - aratanaru genkai he no chousen (japan) [slpm-86457]" sha1="e64631e2c00519dbfa176a58295dfc778ba4747c" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -48223,7 +48223,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="kururin pa! (japan) [slps-00066]" sha1="1828fb138034b7558aefbaf0f055cfa279f7fa38" status="baddump"/>
+				<disk name="kururin pa (japan) [slps-00066]" sha1="1828fb138034b7558aefbaf0f055cfa279f7fa38" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -49005,7 +49005,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="magical drop f - daibouken mo rakujyanai! (japan) [slps-02337]" sha1="a7a7e7481de4b60fb9998f76b2121c7f941346ef" status="baddump"/>
+				<disk name="magical drop f - daibouken mo rakujyanai (japan) [slps-02337]" sha1="a7a7e7481de4b60fb9998f76b2121c7f941346ef" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -49138,7 +49138,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="makeruna! makendo 2 (japan) [slps-00128]" sha1="b89af4e7e54c854e00d5ea49d971095847d5aeb9" status="baddump"/>
+				<disk name="makeruna makendo 2 (japan) [slps-00128]" sha1="b89af4e7e54c854e00d5ea49d971095847d5aeb9" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -49222,7 +49222,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="marl jong!! limited edition (japan) [slps-03537]" sha1="aee6d7fb13bde6f98b949c94f2a12f4c3accbfc8" status="baddump"/>
+				<disk name="marl jong limited edition (japan) [slps-03537]" sha1="aee6d7fb13bde6f98b949c94f2a12f4c3accbfc8" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -49732,7 +49732,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="mezase! senkyuuou (japan) [slps-00313]" sha1="736bc4a0ad6b3315516ceaf5ced58f044a466ca8" status="baddump"/>
+				<disk name="mezase senkyuuou (japan) [slps-00313]" sha1="736bc4a0ad6b3315516ceaf5ced58f044a466ca8" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -49868,7 +49868,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="mini moni - shaker &amp; tambourine! dapyon! (japan) [slpm-87132]" sha1="da020789e94ef440bb46eb4e9c5b61cafc8d2340" status="baddump"/>
+				<disk name="mini moni - shaker &amp; tambourine dapyon (japan) [slpm-87132]" sha1="da020789e94ef440bb46eb4e9c5b61cafc8d2340" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -49889,7 +49889,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="mini-yonku hakusou kyoudai - rettsu &amp; go!! - wgp hyper heat (japan) [slps-01078]" sha1="81fbd10222fcdc35ca2160933c5005e272d788c5" status="baddump"/>
+				<disk name="mini-yonku hakusou kyoudai - rettsu &amp; go - wgp hyper heat (japan) [slps-01078]" sha1="81fbd10222fcdc35ca2160933c5005e272d788c5" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -49910,7 +49910,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="misaki-aggressive! (japan) [slps-01474]" sha1="9a17567c640c6c5a775dbe183f3e7795c6deda0c" status="baddump"/>
+				<disk name="misaki-aggressive (japan) [slps-01474]" sha1="9a17567c640c6c5a775dbe183f3e7795c6deda0c" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -50034,7 +50034,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="mahjong yarouze! (japan) [slpm-86173]" sha1="d37e86d019ca4c4fa392d52a4fbe33418caa990a" status="baddump"/>
+				<disk name="mahjong yarouze (japan) [slpm-86173]" sha1="d37e86d019ca4c4fa392d52a4fbe33418caa990a" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -51209,7 +51209,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="oja majo doremi dokkan! nijiro paradise (japan) [slps-03497]" sha1="fa82af5ce48ed5aa2610588d292d00bbbd3f4c20" status="baddump"/>
+				<disk name="oja majo doremi dokkan nijiro paradise (japan) [slps-03497]" sha1="fa82af5ce48ed5aa2610588d292d00bbbd3f4c20" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -51737,7 +51737,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="parlor! pro jr. collection (japan) [slps-02781]" sha1="a99e3b7698ba9833d3db01117bfff4b7699702dc" status="baddump"/>
+				<disk name="parlor pro jr. collection (japan) [slps-02781]" sha1="a99e3b7698ba9833d3db01117bfff4b7699702dc" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -52185,7 +52185,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="pop'n tanks! (japan) [slpm-86146]" sha1="8c595e77213df35882ada74390f7c80c397dad92" status="baddump"/>
+				<disk name="pop'n tanks (japan) [slpm-86146]" sha1="8c595e77213df35882ada74390f7c80c397dad92" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -52248,7 +52248,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="princess maker - go! go! princess (japan) [slps-01505]" sha1="4faa6469f107df8afa4c583e5b60ede728491fa1" status="baddump"/>
+				<disk name="princess maker - go go princess (japan) [slps-01505]" sha1="4faa6469f107df8afa4c583e5b60ede728491fa1" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -52791,7 +52791,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="power shovel ni norou!! (japan) [slpm-86629]" sha1="df87356e9a69fdd1983e8caa52e8342fb7525b46" status="baddump"/>
+				<disk name="power shovel ni norou (japan) [slpm-86629]" sha1="df87356e9a69fdd1983e8caa52e8342fb7525b46" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -52855,7 +52855,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="quiz charaokedon! toei tokusatsu hero part 2 (japan) [slps-02310]" sha1="bd241dcb69cf4a52f6a3cb4e070ce918fcd11304" status="baddump"/>
+				<disk name="quiz charaokedon toei tokusatsu hero part 2 (japan) [slps-02310]" sha1="bd241dcb69cf4a52f6a3cb4e070ce918fcd11304" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -52980,7 +52980,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="race drivin' a go! go! (japan) [slps-00167]" sha1="e689874565e244d6e3fd4507ce3e2ff1b8c0f9a8" status="baddump"/>
+				<disk name="race drivin' a go go (japan) [slps-00167]" sha1="e689874565e244d6e3fd4507ce3e2ff1b8c0f9a8" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -53230,7 +53230,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
         <sharedfeat name="compatibility" value="NTSC-J"/>
         <part name="cdrom" interface="psx_cdrom">
             <diskarea name="cdrom">
-                <disk name="rc de go! (japan)" sha1="8b5e9507ac72141812f8a921f59df569792ee243" status="baddump"/>
+                <disk name="rc de go (japan)" sha1="8b5e9507ac72141812f8a921f59df569792ee243" status="baddump"/>
             </diskarea>
         </part>
     </software>
@@ -54283,7 +54283,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="simple characters 2000 series vol.10 - sakigake!! otojo juku - the dodgeball (japan) [slps-03457]" sha1="aba175045b3b7335d32f323de56da192989e4a78" status="baddump"/>
+				<disk name="simple characters 2000 series vol.10 - sakigake otojo juku - the dodgeball (japan) [slps-03457]" sha1="aba175045b3b7335d32f323de56da192989e4a78" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -54507,7 +54507,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="sd gundam eiyuuden - daikessen!! knight vs. musha (japan) [slps-03145]" sha1="cc3d301227705403184526be508f317f32e81d99" status="baddump"/>
+				<disk name="sd gundam eiyuuden - daikessen knight vs. musha (japan) [slps-03145]" sha1="cc3d301227705403184526be508f317f32e81d99" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -54633,7 +54633,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="senryaku shidan - tora! tora! tora! rikusen-hen (japan) [slps-02631]" sha1="b21f96633430f8f4887080955960ba6d1e994bce" status="baddump"/>
+				<disk name="senryaku shidan - tora tora tora rikusen-hen (japan) [slps-02631]" sha1="b21f96633430f8f4887080955960ba6d1e994bce" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -54860,7 +54860,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="shibasu 1-2-3 destiny! (japan) [slps-01893]" sha1="0f69dbc9c68cbda6e0204fd4a959cb5a5759b2c9" status="baddump"/>
+				<disk name="shibasu 1-2-3 destiny (japan) [slps-01893]" sha1="0f69dbc9c68cbda6e0204fd4a959cb5a5759b2c9" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -55664,7 +55664,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="kids station - motto! oja majo dorami - maho-dou smile party (japan) [slps-03247]" sha1="5aa2abd47c52de690a55160d5a70122ddba60391" status="baddump"/>
+				<disk name="kids station - motto oja majo dorami - maho-dou smile party (japan) [slps-03247]" sha1="5aa2abd47c52de690a55160d5a70122ddba60391" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -56308,7 +56308,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="simple 1500 series vol.089 - the power shovel ni norou!! (japan) [slpm-87035]" sha1="3857cddf2ac433999a3afa9f048c11de08718663" status="baddump"/>
+				<disk name="simple 1500 series vol.089 - the power shovel ni norou (japan) [slpm-87035]" sha1="3857cddf2ac433999a3afa9f048c11de08718663" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -56434,7 +56434,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="simple 1500 series vol.102 - the densha untenshi - densha de go! nagoya tetsudo-hen (japan) [slpm-87144]" sha1="84e78ee96499e8d022086e17230e06ec94eac532" status="baddump"/>
+				<disk name="simple 1500 series vol.102 - the densha untenshi - densha de go nagoya tetsudo-hen (japan) [slpm-87144]" sha1="84e78ee96499e8d022086e17230e06ec94eac532" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -56455,7 +56455,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="simple 1500 series vol.103 - the ganso densha untenshi - densha de go! (japan) [slpm-87212]" sha1="c632825bca27acc68d0353b6e63fd568453c3c13" status="baddump"/>
+				<disk name="simple 1500 series vol.103 - the ganso densha untenshi - densha de go (japan) [slpm-87212]" sha1="c632825bca27acc68d0353b6e63fd568453c3c13" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -57028,12 +57028,12 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom1" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="tenchi muyou! toukou muyou - no need for school (japan) (disc 1) [slps-00451]" sha1="ce26c41f4c3530868b9ad2eb282b64d49773be7c" status="baddump"/>
+				<disk name="tenchi muyou toukou muyou - no need for school (japan) (disc 1) [slps-00451]" sha1="ce26c41f4c3530868b9ad2eb282b64d49773be7c" status="baddump"/>
 			</diskarea>
 		</part>
 		<part name="cdrom2" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="tenchi muyou! toukou muyou - no need for school (japan) (disc 2) [slps-00452]" sha1="31ef34a273db00b6955df05ce766a37ffc408932" status="baddump"/>
+				<disk name="tenchi muyou toukou muyou - no need for school (japan) (disc 2) [slps-00452]" sha1="31ef34a273db00b6955df05ce766a37ffc408932" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -57883,7 +57883,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="ore! tomba (japan) [slps-01144]" sha1="d55669905f0c545f81f296ff5f83a47210e0ef4f" status="baddump"/>
+				<disk name="ore tomba (japan) [slps-01144]" sha1="d55669905f0c545f81f296ff5f83a47210e0ef4f" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -57904,7 +57904,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="tomba! the wild adventures (japan) [slps-02350]" sha1="acfece1679d0479dc2b09f8c79e85b824b62148f" status="baddump"/>
+				<disk name="tomba the wild adventures (japan) [slps-02350]" sha1="acfece1679d0479dc2b09f8c79e85b824b62148f" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -57925,7 +57925,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="tomikatown wo tukurou! (japan) [slps-01935]" sha1="4cd45ac3419e28c253439181621af08117533742" status="baddump"/>
+				<disk name="tomikatown wo tukurou (japan) [slps-01935]" sha1="4cd45ac3419e28c253439181621af08117533742" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -58073,7 +58073,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="trump shiyouyo! (japan) [slps-01440]" sha1="721747d0cb09bfd034c98e77e4d0e9fdb423b2bc" status="baddump"/>
+				<disk name="trump shiyouyo (japan) [slps-01440]" sha1="721747d0cb09bfd034c98e77e4d0e9fdb423b2bc" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -58484,12 +58484,12 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom1" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="taiho shichauzo! - you're under arrest (japan) (disc 1) [slpm-86782]" sha1="52c7ba04a50123449916de373ab1e75801245953" status="baddump"/>
+				<disk name="taiho shichauzo - you're under arrest (japan) (disc 1) [slpm-86782]" sha1="52c7ba04a50123449916de373ab1e75801245953" status="baddump"/>
 			</diskarea>
 		</part>
 		<part name="cdrom2" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="taiho shichauzo! - you're under arrest (japan) (disc 2) [slpm-86783]" sha1="f3f685c91c178af15fbd6af06d7bb0536292d4e8" status="baddump"/>
+				<disk name="taiho shichauzo - you're under arrest (japan) (disc 2) [slpm-86783]" sha1="f3f685c91c178af15fbd6af06d7bb0536292d4e8" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -58887,7 +58887,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="wagamama fairy mirumo de pon! (japan) [slpm-87220]" sha1="39794de6fc2e007219d38ea8577762d15d16be68" status="baddump"/>
+				<disk name="wagamama fairy mirumo de pon (japan) [slpm-87220]" sha1="39794de6fc2e007219d38ea8577762d15d16be68" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -58937,7 +58937,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="warera mitsurin tankentai!! (japan) [slps-02658]" sha1="d5f11cc233a598923ff7cf6bf55d2ab938fb8870" status="baddump"/>
+				<disk name="warera mitsurin tankentai (japan) [slps-02658]" sha1="d5f11cc233a598923ff7cf6bf55d2ab938fb8870" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -59104,7 +59104,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="world league soccer - challenge nippon! (japan) [slps-02687]" sha1="9a28fa97a3490527d9fc709866b458897ea0abd9" status="baddump"/>
+				<disk name="world league soccer - challenge nippon (japan) [slps-02687]" sha1="9a28fa97a3490527d9fc709866b458897ea0abd9" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -59529,7 +59529,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="yu-gi-oh! monster capsule breed &amp; battle (japan) [slpm-86096]" sha1="fcf30c3e44a5072adbac0dc89b7c705001e2d694" status="baddump"/>
+				<disk name="yu-gi-oh monster capsule breed &amp; battle (japan) [slpm-86096]" sha1="fcf30c3e44a5072adbac0dc89b7c705001e2d694" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -59655,7 +59655,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="NTSC-J"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="zap! snowboarding trix '98 (japan) [slps-00909]" sha1="ef10c209ea83250aec690bdfeae0fb3182888099" status="baddump"/>
+				<disk name="zap snowboarding trix '98 (japan) [slps-00909]" sha1="ef10c209ea83250aec690bdfeae0fb3182888099" status="baddump"/>
 			</diskarea>
 		</part>
 	</software>
@@ -60243,7 +60243,7 @@ The entries in this section are intended to replace the existing "low-grade" Jap
 		<sharedfeat name="compatibility" value="PAL-E"/>
 		<part name="cdrom" interface="psx_cdrom">
 			<diskarea name="cdrom">
-				<disk name="action replay 2 version 2.23 (europe) (en,fr,de,it) (disc 2) (bonus psone codes!) (unl)" sha1="0b9dc08b337fc82620540a87165299013bb6dbe1"/>
+				<disk name="action replay 2 version 2.23 (europe) (en,fr,de,it) (disc 2) (bonus psone codes) (unl)" sha1="0b9dc08b337fc82620540a87165299013bb6dbe1"/>
 			</diskarea>
 		</part>
 	</software>
